@@ -1582,13 +1582,17 @@ def run_extraction_agent(url: str, _depth: int = 0) -> ExtractionOutcome:
                 elif followable:
                     pass  # linked but nothing useful returned
                 else:
-                    # C. JS-only — cannot resolve statically
-                    requires_browser = True
-                    hidden_warning = (
-                        f"Page has {len(hidden_signals)} show-more/hidden signal(s) that require "
-                        "browser interaction to expand. Extraction may be incomplete."
-                    )
-                    logger.info("[hidden_content] Requires browser interaction — warning set")
+                    # C. JS-only — cannot resolve statically.
+                    # Only flag when extraction also failed: aria-expanded/show-more
+                    # buttons on pages that already returned faculty are navigation UI,
+                    # not gates hiding actual faculty data.
+                    if not faculty_list:
+                        requires_browser = True
+                        hidden_warning = (
+                            f"Page has {len(hidden_signals)} show-more/hidden signal(s) that require "
+                            "browser interaction to expand. Extraction may be incomplete."
+                        )
+                        logger.info("[hidden_content] Requires browser interaction — warning set")
 
     # ── 6c. Filterable directory detection ───────────────────────────────────
     # USC-style pages with query-param faculty links and large result sets are
