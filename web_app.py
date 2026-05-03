@@ -94,9 +94,11 @@ def _sse(obj: dict) -> str:
 
 @app.post("/analyze")
 async def analyze(cv_text: str = Form(...), urls: str = Form(...),
-                  api_key: str = Form(default="")):
+                  api_key: str = Form(default=""),
+                  provider: str = Form(default="anthropic")):
+    from mcp_servers.llm_client import PROVIDER_ENV
     if api_key:
-        os.environ["ANTHROPIC_API_KEY"] = api_key
+        os.environ[PROVIDER_ENV.get(provider, "ANTHROPIC_API_KEY")] = api_key
 
     async def stream() -> AsyncIterator[str]:
         try:
@@ -182,6 +184,7 @@ async def analyze(cv_text: str = Form(...), urls: str = Form(...),
                         user_profile,
                         extraction_outcome=extraction_outcome,
                         progress_cb=prog_queue.put,
+                        llm_provider=provider,
                     )
                     prog_queue.put(("__DONE__", outcome))
                 except Exception as exc:
@@ -236,6 +239,6 @@ async def analyze(cv_text: str = Form(...), urls: str = Form(...),
 if __name__ == "__main__":
     import argparse, uvicorn
     parser = argparse.ArgumentParser()
-    parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--port", type=int, default=8001)
     args = parser.parse_args()
     uvicorn.run(app, host="127.0.0.1", port=args.port, log_level="warning")

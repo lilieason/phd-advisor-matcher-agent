@@ -21,8 +21,8 @@ pip install -r requirements.txt
 # 4. Start the web app
 python web_app.py
 
-# 5. Open http://localhost:8000
-#    Enter your Anthropic API key, upload your CV, paste a faculty URL → done
+# 5. Open http://localhost:8001
+#    Select your LLM provider, enter your API key, upload CV, paste URL → done
 ```
 
 ## What it does

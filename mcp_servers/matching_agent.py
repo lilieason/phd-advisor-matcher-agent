@@ -1437,6 +1437,7 @@ def run_matching_agent(
     progress_cb=None,
     debug_limit: Optional[int] = None,
     skip_scholar: bool = False,
+    llm_provider: str = "anthropic",
 ) -> MatchingOutcome:
     """
     Full pipeline: A → B → C → D → E (original scoring).
@@ -1447,12 +1448,15 @@ def run_matching_agent(
         extraction_outcome: Pre-computed ExtractionOutcome to skip extraction.
         output_path:        Where to write JSON report.
         progress_cb:        Optional callable(dict) for streaming progress events.
+        llm_provider:       LLM provider — "anthropic" (default), "openai", "gemini".
 
     Returns:
         MatchingOutcome with top_results mapped from the original scoring pipeline.
     """
     load_dotenv()
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    from mcp_servers.llm_client import make_client, PROVIDER_ENV
+    _api_key = os.environ.get(PROVIDER_ENV.get(llm_provider, "ANTHROPIC_API_KEY"), "")
+    client = make_client(provider=llm_provider, api_key=_api_key)
 
     # Use research_interests as the CV text fed into the original scoring prompts.
     cv_text   = user_profile.research_interests

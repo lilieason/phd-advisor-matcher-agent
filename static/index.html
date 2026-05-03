@@ -531,18 +531,27 @@
 
   <!-- API Key -->
   <div class="card">
-    <div class="section-label">Step 0 — Anthropic API Key</div>
+    <div class="section-label">Step 0 — LLM Provider &amp; API Key</div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+      <select id="provider-select"
+        style="padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;
+               font-size:14px;background:var(--surface);outline:none;cursor:pointer;">
+        <option value="anthropic">✦ Anthropic Claude (recommended)</option>
+        <option value="openai">OpenAI GPT</option>
+        <option value="gemini">Google Gemini</option>
+      </select>
+    </div>
     <div style="display:flex;gap:10px;align-items:center;">
-      <input type="password" id="api-key-input" placeholder="sk-ant-api03-…"
+      <input type="password" id="api-key-input" placeholder="Paste your API key…"
         style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;
                font-size:14px;font-family:monospace;outline:none;transition:border-color 0.2s;"
         onfocus="this.style.borderColor='var(--accent)'"
         onblur="this.style.borderColor='var(--border)'">
       <span id="api-key-status" style="font-size:13px;white-space:nowrap;"></span>
     </div>
-    <div style="margin-top:8px;font-size:12px;color:var(--muted);">
-      Your key is stored locally in your browser and never sent anywhere except Anthropic's API.
-      Get one at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a>.
+    <div style="margin-top:8px;font-size:12px;color:var(--muted);" id="provider-hint">
+      Get a Claude key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a>.
+      Your key is stored locally in your browser only.
     </div>
   </div>
 
@@ -622,31 +631,42 @@ let cvText = null;
 let allResults = [];
 let currentMode = 'single';   // 'single' | 'batch'
 
-// ── API Key (localStorage) ─────────────────────────────────────────────────
-const apiKeyInput  = document.getElementById('api-key-input');
-const apiKeyStatus = document.getElementById('api-key-status');
+// ── API Key + Provider (localStorage) ─────────────────────────────────────
+const apiKeyInput    = document.getElementById('api-key-input');
+const apiKeyStatus   = document.getElementById('api-key-status');
+const providerSelect = document.getElementById('provider-select');
+const providerHint   = document.getElementById('provider-hint');
 
-(function loadSavedKey() {
-  const saved = localStorage.getItem('anthropic_api_key');
-  if (saved) {
-    apiKeyInput.value = saved;
-    apiKeyStatus.textContent = '✓ Key loaded';
-    apiKeyStatus.style.color = 'var(--success)';
-  }
-})();
+const PROVIDER_HINTS = {
+  anthropic: 'Get a Claude key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a>. Your key is stored locally in your browser only.',
+  openai:    'Get a key at <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--accent)">platform.openai.com</a>. Your key is stored locally in your browser only.',
+  gemini:    'Get a key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com</a>. Your key is stored locally in your browser only.',
+};
+
+function currentProvider() { return providerSelect.value; }
+
+function loadKeyForProvider(p) {
+  const saved = localStorage.getItem('api_key_' + p);
+  apiKeyInput.value = saved || '';
+  apiKeyStatus.textContent = saved ? '✓ Key loaded' : '';
+  apiKeyStatus.style.color = 'var(--success)';
+  providerHint.innerHTML = PROVIDER_HINTS[p] || '';
+  checkReady();
+}
+
+providerSelect.addEventListener('change', () => loadKeyForProvider(currentProvider()));
+loadKeyForProvider(currentProvider());
 
 apiKeyInput.addEventListener('input', () => {
   const v = apiKeyInput.value.trim();
-  if (v.startsWith('sk-ant-')) {
-    localStorage.setItem('anthropic_api_key', v);
+  const p = currentProvider();
+  if (v) {
+    localStorage.setItem('api_key_' + p, v);
     apiKeyStatus.textContent = '✓ Saved';
     apiKeyStatus.style.color = 'var(--success)';
-  } else if (v) {
-    apiKeyStatus.textContent = '⚠ Should start with sk-ant-';
-    apiKeyStatus.style.color = 'var(--warn)';
   } else {
     apiKeyStatus.textContent = '';
-    localStorage.removeItem('anthropic_api_key');
+    localStorage.removeItem('api_key_' + p);
   }
   checkReady();
 });
@@ -727,6 +747,7 @@ async function startAnalysis() {
   progressLog.innerHTML = '<span class="spinner"></span> Starting…';
 
   const fd = new FormData();
+  fd.append('provider', currentProvider());
   fd.append('api_key', apiKeyInput.value.trim());
   fd.append('cv_text', cvText);
   fd.append('urls', urlsInput.value.trim());

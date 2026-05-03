@@ -2178,9 +2178,9 @@ Rules:
 - Skip navigation, department pages, courses, events, admin, students"""
 
     try:
-        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        from mcp_servers.llm_client import make_client
+        client = make_client()
         msg = client.messages.create(
-            model="claude-haiku-4-5-20251001",
             max_tokens=16384,  # 150 faculty × ~56 tokens/entry ≈ 8 400 tokens; 16 384 gives 2× headroom
             messages=[{"role": "user", "content": prompt}],
         )
