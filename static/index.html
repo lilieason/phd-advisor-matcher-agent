@@ -631,14 +631,25 @@ let cvText = null;
 let allResults = [];
 let currentMode = 'single';   // 'single' | 'batch'
 
-// ── API Key + Provider (localStorage) ─────────────────────────────────────
+// ── DOM references (all up front to avoid TDZ errors) ─────────────────────
 const apiKeyInput    = document.getElementById('api-key-input');
 const apiKeyStatus   = document.getElementById('api-key-status');
 const providerSelect = document.getElementById('provider-select');
 const providerHint   = document.getElementById('provider-hint');
+const dropZone       = document.getElementById('drop-zone');
+const cvFile         = document.getElementById('cv-file');
+const cvStatus       = document.getElementById('cv-status');
+const analyzeBtn     = document.getElementById('analyze-btn');
+const urlsInput      = document.getElementById('urls-input');
 
+function checkReady() {
+  const hasKey = apiKeyInput.value.trim().length > 0;
+  analyzeBtn.disabled = !(hasKey && cvText && urlsInput.value.trim());
+}
+
+// ── API Key + Provider (localStorage) ─────────────────────────────────────
 const PROVIDER_HINTS = {
-  anthropic: 'Get a Claude key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a>. Your key is stored locally in your browser only.',
+  anthropic: 'Get a Claude key at <a href="https://platform.claude.com/settings/keys" target="_blank" style="color:var(--accent)">platform.claude.com/settings/keys</a>. Your key is stored locally in your browser only.',
   openai:    'Get a key at <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--accent)">platform.openai.com</a>. Your key is stored locally in your browser only.',
   gemini:    'Get a key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com</a>. Your key is stored locally in your browser only.',
 };
@@ -672,15 +683,6 @@ apiKeyInput.addEventListener('input', () => {
 });
 
 // ── CV Upload ──────────────────────────────────────────────────────────────
-const dropZone  = document.getElementById('drop-zone');
-const cvFile    = document.getElementById('cv-file');
-const cvStatus  = document.getElementById('cv-status');
-const analyzeBtn = document.getElementById('analyze-btn');
-
-function checkReady() {
-  const hasKey = apiKeyInput.value.trim().startsWith('sk-ant-');
-  analyzeBtn.disabled = !(hasKey && cvText && urlsInput.value.trim());
-}
 
 cvFile.addEventListener('change', () => uploadCV(cvFile.files[0]));
 
@@ -721,7 +723,6 @@ async function uploadCV(file) {
 }
 
 // ── URL input ──────────────────────────────────────────────────────────────
-const urlsInput = document.getElementById('urls-input');
 urlsInput.addEventListener('input', checkReady);
 
 // ── Analyze ────────────────────────────────────────────────────────────────
