@@ -2875,7 +2875,7 @@ async def read_cv(file_path: str) -> str:
         return f"Error: file not found: {file_path}"
 
     suffix = path.suffix.lower()
-    if suffix == ".txt":
+    if suffix in (".txt", ".md"):
         return path.read_text(encoding="utf-8")
 
     if suffix == ".pdf":
@@ -2884,11 +2884,11 @@ async def read_cv(file_path: str) -> str:
             reader = PdfReader(str(path))
             pages = [page.extract_text() or "" for page in reader.pages]
             text = "\n".join(pages).strip()
-            return text if text else "Error: could not extract text from PDF (may be scanned)"
+            return text if text else "Error: could not extract text from PDF (may be scanned/image-only)"
         except Exception as e:
             return f"Error reading PDF: {e}"
 
-    return f"Error: unsupported file type '{suffix}'. Use .txt or .pdf."
+    return f"Error: unsupported file type '{suffix}'. Use .pdf, .txt, .md, or .docx."
 
 
 # ── Tool 2: fetch_faculty_list ────────────────────────────────────────────── #
