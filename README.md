@@ -1,0 +1,36 @@
+# PhD Advisor Matcher
+
+Paste a faculty directory URL → get a ranked list of the best-fit PhD advisors for your CV.
+
+## Quickstart
+
+**Requirements:** Python 3.9+, an [Anthropic API key](https://console.anthropic.com)
+
+```bash
+# 1. Clone and install
+git clone https://github.com/YOUR_USERNAME/phd-advisor-matcher.git
+cd phd-advisor-matcher
+pip install -r requirements.txt
+
+# 2. Start the web app
+python web_app.py
+
+# 3. Open http://localhost:8000
+#    Enter your Anthropic API key, upload your CV, paste a faculty URL → done
+```
+
+## What it does
+
+1. **Extracts** all faculty from a department directory page
+2. **Fetches** each professor's profile + Google Scholar publications
+3. **Scores** fit with your CV across research direction, methods, and application domain
+4. **Returns** a ranked Top 10 table with match explanations and email entry points
+
+## Supported URL types
+
+- **Faculty directory** (recommended): `https://ise.ufl.edu/people/faculty/`  → full batch ranking
+- **Individual profile**: paste one or more direct profile URLs → per-professor analysis
+
+## Requirements
+
+See `requirements.txt`. Key dependencies: `fastapi`, `uvicorn`, `anthropic`, `beautifulsoup4`, `curl-cffi`.

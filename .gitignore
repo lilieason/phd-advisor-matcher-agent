@@ -1,0 +1,43 @@
+# API keys — NEVER commit
+.env
+
+# Personal output data
+outputs/
+
+# Local cache & state
+.aurite_cache
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+
+# Claude Code internal files
+.claude/
+CLAUDE.md
+
+# Aurite local project config (has personal venv path)
+.aurite
+config/
+
+# Internal demo/audit scripts (have personal paths)
+run_advisor_demo.py
+run_audit_report.py
+run_department_demo.py
+run_example_project.py
+run_paper_demo.py
+generate_report.py
+rewrite_report.py
+
+# Unused MCP servers (not part of the advisor tool)
+mcp_servers/mcp_http_example_server.py
+mcp_servers/planning_server.py
+mcp_servers/weather_server.py
+mcp_servers/paper_server.py
+custom_workflows/
+
+# Benchmark artifacts (may contain personal CV data)
+benchmark_openalex_results.json
+benchmark_openalex_summary.md
+
+# Kahuna local memory
+.kahuna/

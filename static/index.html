@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advisor Match</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #f5f5f7;
+    --surface:  #ffffff;
+    --border:   #d2d2d7;
+    --text:     #1d1d1f;
+    --muted:    #6e6e73;
+    --accent:   #0071e3;
+    --accent-h: #0077ed;
+    --danger:   #ff3b30;
+    --success:  #34c759;
+    --warn:     #ff9500;
+    --radius:   14px;
+    --shadow:   0 2px 20px rgba(0,0,0,0.07);
+    --font:     -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    padding: 0 40px;
+    height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  header h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; }
+  header span { font-size: 13px; color: var(--muted); }
+
+  /* ── Layout ── */
+  main { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  /* ── Upload zone ── */
+  #drop-zone {
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    padding: 36px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  #drop-zone:hover, #drop-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(0,113,227,0.04);
+  }
+  #drop-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  #drop-zone .icon { font-size: 32px; margin-bottom: 10px; }
+  #drop-zone .label { font-size: 15px; font-weight: 500; color: var(--text); }
+  #drop-zone .sub   { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  #cv-status {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--success);
+    font-weight: 500;
+    display: none;
+  }
+
+  /* ── Textarea ── */
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: "SF Mono", "Menlo", "Courier New", monospace;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--surface);
+    resize: vertical;
+    outline: none;
+    line-height: 1.6;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: #b0b0b5; }
+
+  /* ── Button ── */
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 980px;
+    padding: 10px 28px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    font-family: var(--font);
+  }
+  .btn-primary:hover  { background: var(--accent-h); }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: 980px;
+    padding: 7px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: var(--font);
+  }
+  .btn-ghost:hover { background: rgba(0,113,227,0.06); }
+
+  /* ── Progress ── */
+  #progress-area { display: none; }
+  .progress-bar-wrap {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+  #progress-log {
+    font-size: 13px;
+    color: var(--muted);
+    min-height: 22px;
+  }
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Results ── */
+  #results-area { display: none; }
+  .results-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .results-header h2 { font-size: 20px; font-weight: 600; }
+  .export-btns { display: flex; gap: 8px; }
+
+  /* ── Score badge ── */
+  .score-badge {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 980px;
+    white-space: nowrap;
+  }
+  .score-hi  { background: rgba(52,199,89,0.12);  color: #1a7f37; }
+  .score-mid { background: rgba(255,149,0,0.12);  color: #b25000; }
+  .score-lo  { background: rgba(142,142,147,0.12); color: #6e6e73; }
+
+  /* ── Table ── */
+  .result-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .result-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s;
+  }
+  .result-row:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); }
+
+  .row-summary {
+    display: grid;
+    grid-template-columns: 28px 1fr 70px 28px;
+    align-items: start;
+    gap: 16px;
+    padding: 18px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .rank-num {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    padding-top: 2px;
+  }
+
+  .row-main { min-width: 0; }
+  .row-name {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .row-links { display: flex; gap: 8px; }
+  .link-chip {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent);
+    background: rgba(0,113,227,0.07);
+    border-radius: 4px;
+    padding: 2px 7px;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .link-chip:hover { background: rgba(0,113,227,0.13); }
+  /* Dim chip: low-confidence website or fallback Scholar link */
+  .link-chip-dim { opacity: 0.6; font-style: italic; }
+
+  /* Research-group membership tags (from grouped-faculty extraction) */
+  .group-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+  .group-tag {
+    font-size: 10.5px;
+    font-weight: 500;
+    background: rgba(0,113,227,0.08);
+    color: #0071e3;
+    border: 1px solid rgba(0,113,227,0.2);
+    border-radius: 20px;
+    padding: 1px 8px;
+    white-space: nowrap;
+  }
+
+  .row-interests {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  .row-score { text-align: right; padding-top: 2px; }
+
+  .chevron {
+    font-size: 16px;
+    color: var(--muted);
+    transition: transform 0.25s;
+    padding-top: 3px;
+  }
+  .result-row.open .chevron { transform: rotate(180deg); }
+
+  /* ── Detail panel ── */
+  .row-detail {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 20px 20px 20px 64px;
+    background: #fafafa;
+  }
+  .result-row.open .row-detail { display: block; }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 32px;
+  }
+  @media (max-width: 640px) { .detail-grid { grid-template-columns: 1fr; } }
+
+  .detail-block h4 {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .detail-block p {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .score-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .score-row .dim-name { color: var(--muted); width: 80px; flex-shrink: 0; }
+  .mini-bar-bg {
+    flex: 1;
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .mini-bar { height: 100%; border-radius: 3px; background: var(--accent); }
+  .score-row .dim-val { font-weight: 600; min-width: 28px; text-align: right; }
+
+  .cold-email { display: flex; flex-direction: column; gap: 8px; }
+  .cold-item {
+    display: flex; gap: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .cold-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+    min-width: 56px;
+    padding-top: 1px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Empty / error states ── */
+  .empty-state {
+    text-align: center; padding: 60px 20px;
+    color: var(--muted); font-size: 14px;
+  }
+
+  /* ── Step numbers ── */
+  .section-label { display: flex; align-items: center; gap: 8px; }
+
+  /* ── Pill tags (interests) ── */
+  .interest-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+  .interest-pill {
+    font-size: 11px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 980px;
+    padding: 2px 9px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ── Util ── */
+  .row-gap { margin-top: 10px; }
+  .flex-between { display: flex; align-items: center; justify-content: space-between; }
+
+  /* ── Batch table (directory mode) ── */
+  .batch-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    font-size: 13.5px;
+  }
+  .batch-table thead th {
+    padding: 11px 14px;
+    background: #f5f5f7;
+    border-bottom: 1.5px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+  }
+  .batch-table .col-rank { width: 44px; text-align: center; }
+  .batch-table .col-name { width: 175px; }
+  .batch-table .col-score { width: 90px; text-align: center; }
+  .batch-table .col-toggle { width: 36px; text-align: center; }
+
+  .batch-summary-row {
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid var(--border);
+  }
+  .batch-summary-row:hover { background: #fafafa; }
+  .batch-summary-row td { padding: 14px; vertical-align: top; }
+  .batch-summary-row .col-rank { text-align: center; font-weight: 700; color: var(--muted); font-size: 13px; }
+  .batch-summary-row .col-score { text-align: center; }
+  .batch-summary-row .col-toggle { text-align: center; }
+
+  .faculty-name { font-weight: 600; font-size: 14px; display: block; margin-bottom: 3px; }
+  .priority-high { font-size: 11px; color: #1a7f37; font-weight: 600; }
+  .priority-mid  { font-size: 11px; color: #b25000; font-weight: 600; }
+  .priority-lo   { font-size: 11px; color: var(--muted); }
+
+  .batch-chevron {
+    font-size: 18px;
+    color: var(--muted);
+    display: inline-block;
+    transition: transform 0.25s;
+    line-height: 1;
+    user-select: none;
+  }
+
+  .batch-detail-row { display: none; }
+  .batch-detail-row.open { display: table-row; }
+  .batch-detail-inner {
+    padding: 18px 20px 18px 58px;
+    background: #f9f9fb;
+    border-bottom: 1px solid var(--border);
+  }
+  .batch-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 16px 32px;
+    margin-bottom: 12px;
+  }
+  @media (max-width: 640px) { .batch-detail-grid { grid-template-columns: 1fr; } }
+  .batch-detail-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+  }
+  .batch-detail-text { font-size: 13.5px; color: var(--text); line-height: 1.6; }
+
+  .outreach-list { display: flex; flex-direction: column; gap: 7px; }
+  .outreach-item { display: flex; gap: 8px; font-size: 13px; line-height: 1.55; align-items: flex-start; }
+  .outreach-tag {
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 2px 6px; white-space: nowrap;
+    min-width: 68px; text-align: center; flex-shrink: 0; margin-top: 1px;
+  }
+  .batch-detail-links {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px;
+  }
+  .batch-detail-meta { font-size: 12px; color: var(--muted); margin-left: 4px; }
+
+  /* ── Flat batch table column layout ── */
+  .batch-table .bt-rank     { width: 38px;  text-align: center; }
+  .batch-table .bt-faculty  { width: 145px; }
+  .batch-table .bt-interests{ width: 130px; }
+  .batch-table .bt-score    { width: 72px;  text-align: center; }
+  .batch-table .bt-reason   { width: 190px; }
+  /* .bt-outreach fills remaining width */
+
+  .bt-row { border-bottom: 1px solid var(--border); vertical-align: top; }
+  .bt-row:last-child { border-bottom: none; }
+  .bt-row:hover { background: #fafafa; }
+
+  .bt-col { padding: 13px 12px; font-size: 13px; }
+  .bt-col.bt-rank     { font-weight: 700; color: var(--muted); font-size: 12px; vertical-align: top; }
+  .bt-col.bt-score    { vertical-align: top; text-align: center; }
+  .bt-col.bt-reason   { font-size: 12.5px; color: var(--text); line-height: 1.6; }
+  .bt-col.bt-outreach { min-width: 210px; }
+
+  .bt-name { font-weight: 600; font-size: 13.5px; margin-bottom: 5px; }
+  .bt-pill { font-size: 10.5px !important; }
+
+  /* ── Signal badges ── */
+  .sig-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
+  .sig-badge {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.02em;
+    border-radius: 3px; padding: 1px 5px; white-space: nowrap;
+  }
+  /* Funding */
+  .sig-funding-strong  { background: #d1fadf; color: #1a7f44; }
+  .sig-funding-medium  { background: #fff3cd; color: #856404; }
+  .sig-funding-unknown { background: #f0f0f0; color: #888; }
+  /* Recruiting */
+  .sig-recruiting-open    { background: #cfe2ff; color: #0a58ca; }
+  .sig-recruiting-unclear { display: none; }   /* hide "unclear" — it adds no value */
+  /* Activity */
+  .sig-activity-high    { background: #d1fadf; color: #1a7f44; }
+  .sig-activity-medium  { background: #fff3cd; color: #856404; }
+  .sig-activity-low     { background: #fde8e8; color: #b91c1c; }
+  .sig-activity-unknown { display: none; }
+  /* Scholar fallback indicator */
+  .sig-scholar-fallback { background: #ede9fe; color: #6d28d9; }
+
+  .bt-bullet {
+    display: flex; gap: 7px; align-items: flex-start;
+    font-size: 12px; color: var(--text); line-height: 1.5;
+    margin-bottom: 6px;
+  }
+  .bt-bullet:last-child { margin-bottom: 0; }
+  .bt-tag {
+    font-size: 9.5px; font-weight: 700; color: var(--muted);
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 3px; padding: 2px 5px;
+    white-space: nowrap; min-width: 62px; text-align: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ── Star rating ── */
+  .bt-score-wrap { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .bt-stars { font-size: 12px; letter-spacing: 1px; line-height: 1; }
+  .star-full  { color: #f5a623; }
+  .star-half  { color: #f5a623; opacity: 0.7; }
+  .star-empty { color: #d2d2d7; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Advisor Match</h1>
+  <span>PhD Advisor Matching Tool</span>
+</header>
+
+<main>
+
+  <!-- API Key -->
+  <div class="card">
+    <div class="section-label">Step 0 — Anthropic API Key</div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <input type="password" id="api-key-input" placeholder="sk-ant-api03-…"
+        style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;
+               font-size:14px;font-family:monospace;outline:none;transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='var(--accent)'"
+        onblur="this.style.borderColor='var(--border)'">
+      <span id="api-key-status" style="font-size:13px;white-space:nowrap;"></span>
+    </div>
+    <div style="margin-top:8px;font-size:12px;color:var(--muted);">
+      Your key is stored locally in your browser and never sent anywhere except Anthropic's API.
+      Get one at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a>.
+    </div>
+  </div>
+
+  <!-- CV Upload -->
+  <div class="card">
+    <div class="section-label">Step 1 — Upload CV</div>
+    <div id="drop-zone">
+      <input type="file" id="cv-file" accept=".pdf,.txt,.md,.docx">
+      <div class="icon">📄</div>
+      <div class="label">Drop your CV here, or click to browse</div>
+      <div class="sub">Supports PDF · DOCX · TXT · Markdown</div>
+    </div>
+    <div id="cv-status"></div>
+  </div>
+
+  <!-- Faculty Links -->
+  <div class="card">
+    <div class="section-label">Step 2 — Faculty URL(s)</div>
+    <textarea id="urls-input"
+      placeholder="Two modes:
+
+① Single profile URL (one or more):
+https://ise.usc.edu/directory/faculty/profile/?lname=Vayanos&fname=Phebe
+
+② Faculty directory URL (auto-batch, generates Top 10 table):
+https://ise.usc.edu/directory/faculty/"></textarea>
+    <div style="margin-top:10px; font-size:13px; color:var(--muted);">
+      <strong>Directory URL</strong> → auto-extracts all faculty, runs full pipeline, outputs Top 10 table &nbsp;·&nbsp;
+      <strong>Profile URL(s)</strong> → analyses individual faculty
+    </div>
+  </div>
+
+  <!-- Analyze -->
+  <div class="card">
+    <div class="flex-between">
+      <div>
+        <div class="section-label" style="margin-bottom:4px;">Step 3 — Run Analysis</div>
+        <div style="font-size:13px; color:var(--muted);">
+          Fetches profiles, Scholar data, and generates match scores via LLM.
+        </div>
+      </div>
+      <button class="btn-primary" id="analyze-btn" disabled>
+        <span>Start Analysis</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="card" id="progress-area">
+    <div class="section-label">Analysis in Progress</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div id="progress-log"><span class="spinner"></span> Initializing…</div>
+  </div>
+
+  <!-- Results -->
+  <div id="results-area">
+    <div class="results-header">
+      <h2 id="results-title">Results</h2>
+      <div class="export-btns">
+        <button class="btn-ghost" onclick="exportJSON()">Export JSON</button>
+        <button class="btn-ghost" onclick="exportMarkdown()">Export Markdown</button>
+      </div>
+    </div>
+    <!-- Batch mode: table view -->
+    <div id="result-table" style="display:none; overflow-x:auto; margin-bottom:24px;"></div>
+    <!-- Single mode: card list -->
+    <div class="result-list" id="result-list"></div>
+  </div>
+
+</main>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let cvText = null;
+let allResults = [];
+let currentMode = 'single';   // 'single' | 'batch'
+
+// ── API Key (localStorage) ─────────────────────────────────────────────────
+const apiKeyInput  = document.getElementById('api-key-input');
+const apiKeyStatus = document.getElementById('api-key-status');
+
+(function loadSavedKey() {
+  const saved = localStorage.getItem('anthropic_api_key');
+  if (saved) {
+    apiKeyInput.value = saved;
+    apiKeyStatus.textContent = '✓ Key loaded';
+    apiKeyStatus.style.color = 'var(--success)';
+  }
+})();
+
+apiKeyInput.addEventListener('input', () => {
+  const v = apiKeyInput.value.trim();
+  if (v.startsWith('sk-ant-')) {
+    localStorage.setItem('anthropic_api_key', v);
+    apiKeyStatus.textContent = '✓ Saved';
+    apiKeyStatus.style.color = 'var(--success)';
+  } else if (v) {
+    apiKeyStatus.textContent = '⚠ Should start with sk-ant-';
+    apiKeyStatus.style.color = 'var(--warn)';
+  } else {
+    apiKeyStatus.textContent = '';
+    localStorage.removeItem('anthropic_api_key');
+  }
+  checkReady();
+});
+
+// ── CV Upload ──────────────────────────────────────────────────────────────
+const dropZone  = document.getElementById('drop-zone');
+const cvFile    = document.getElementById('cv-file');
+const cvStatus  = document.getElementById('cv-status');
+const analyzeBtn = document.getElementById('analyze-btn');
+
+function checkReady() {
+  const hasKey = apiKeyInput.value.trim().startsWith('sk-ant-');
+  analyzeBtn.disabled = !(hasKey && cvText && urlsInput.value.trim());
+}
+
+cvFile.addEventListener('change', () => uploadCV(cvFile.files[0]));
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) uploadCV(e.dataTransfer.files[0]);
+});
+
+async function uploadCV(file) {
+  if (!file) return;
+  cvStatus.style.display = 'block';
+  cvStatus.textContent = '⏳ Reading CV…';
+  cvText = null;
+  checkReady();
+
+  const fd = new FormData();
+  fd.append('file', file);
+
+  try {
+    const res = await fetch('/upload-cv', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) {
+      cvStatus.style.color = 'var(--danger)';
+      cvStatus.textContent = '✗ ' + data.error;
+    } else {
+      cvText = data.cv_text;
+      cvStatus.style.color = 'var(--success)';
+      cvStatus.textContent = `✓ ${data.filename} · ${data.chars.toLocaleString()} characters`;
+      checkReady();
+    }
+  } catch (e) {
+    cvStatus.style.color = 'var(--danger)';
+    cvStatus.textContent = '✗ Upload failed: ' + e.message;
+  }
+}
+
+// ── URL input ──────────────────────────────────────────────────────────────
+const urlsInput = document.getElementById('urls-input');
+urlsInput.addEventListener('input', checkReady);
+
+// ── Analyze ────────────────────────────────────────────────────────────────
+analyzeBtn.addEventListener('click', startAnalysis);
+
+async function startAnalysis() {
+  analyzeBtn.disabled = true;
+  allResults = [];
+
+  const progressArea = document.getElementById('progress-area');
+  const progressBar  = document.getElementById('progress-bar');
+  const progressLog  = document.getElementById('progress-log');
+  const resultsArea  = document.getElementById('results-area');
+  const resultList   = document.getElementById('result-list');
+
+  progressArea.style.display = 'block';
+  resultsArea.style.display  = 'none';
+  resultList.innerHTML = '';
+  document.getElementById('result-table').style.display = 'none';
+  document.getElementById('result-table').innerHTML = '';
+  currentMode = 'single';
+  progressBar.style.width = '5%';
+  progressLog.innerHTML = '<span class="spinner"></span> Starting…';
+
+  const fd = new FormData();
+  fd.append('api_key', apiKeyInput.value.trim());
+  fd.append('cv_text', cvText);
+  fd.append('urls', urlsInput.value.trim());
+
+  const urlCount = urlsInput.value.trim().split('\n').filter(l => l.trim().startsWith('http')).length;
+  let done = 0;
+  let invalidSection = null;
+
+  try {
+    const res = await fetch('/analyze', { method: 'POST', body: fd });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done: streamDone, value } = await reader.read();
+      if (streamDone) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n\n');
+      buffer = lines.pop(); // keep incomplete chunk
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        let evt;
+        try { evt = JSON.parse(line.slice(6)); } catch { continue; }
+
+        if (evt.type === 'mode') {
+          currentMode = evt.mode;
+          progressLog.innerHTML = `<span class="spinner"></span> ${escHtml(evt.message)}`;
+
+        } else if (evt.type === 'start') {
+          currentMode = evt.mode || 'single';
+          progressLog.innerHTML = `<span class="spinner"></span> Analyzing ${evt.total} faculty members…`;
+
+        } else if (evt.type === 'batch_start') {
+          progressLog.innerHTML = `<span class="spinner"></span> ${escHtml(evt.message)}`;
+          if (evt.sample_urls && evt.sample_urls.length) {
+            progressLog.innerHTML += `<div style="font-size:11px;color:var(--muted);margin-top:4px">
+              Sample: ${evt.sample_urls.map(u => escHtml(u.split('/').slice(-2).join('/'))).join(' · ')}
+            </div>`;
+          }
+          progressBar.style.width = '10%';
+
+        } else if (evt.type === 'batch_progress') {
+          let detail = '';
+          if (evt.step === 'fetch_done')
+            detail = `<span style="color:var(--success)">✓ ${evt.valid}/${evt.total} valid profiles</span>`;
+          else if (evt.step === 'shortlisted')
+            detail = `<span style="color:var(--success)">✓ Shortlist: ${(evt.names||[]).slice(0,5).map(n=>escHtml(n)).join(' · ')}${(evt.names||[]).length>5?' …':''}</span>`;
+          else if (evt.step === 'detail')
+            detail = `<span style="color:var(--muted)">${evt.current}/${evt.total}</span>`;
+          progressLog.innerHTML = `<span class="spinner"></span> ${escHtml(evt.message)}` +
+            (detail ? `<div style="font-size:12px;margin-top:3px">${detail}</div>` : '');
+          const pct = evt.step === 'fetch_done'         ? 30
+                    : evt.step === 'prescreen'           ? 35
+                    : evt.step === 'prescreen_skipped'   ? 48
+                    : evt.step === 'shortlisted'         ? 48
+                    : evt.step === 'full_analysis_start' ? 52
+                    : evt.step === 'detail'              ? Math.min(96, 52 + Math.round((Math.max(0, evt.current) / Math.max(1, evt.total)) * 44))
+                    : 15;
+          progressBar.style.width = pct + '%';
+
+        } else if (evt.type === 'progress') {
+          progressLog.innerHTML = `<span class="spinner"></span> ${escHtml(evt.message)}`;
+          progressBar.style.width = Math.max(10, Math.round((done / urlCount) * 80)) + '%';
+
+        } else if (evt.type === 'partial') {
+          done++;
+          progressBar.style.width = Math.round((done / urlCount) * 90) + '%';
+          allResults.push(evt.result);
+          resultsArea.style.display = 'block';
+          renderResults(allResults);
+
+        } else if (evt.type === 'done') {
+          allResults = evt.results;
+          currentMode = evt.mode || currentMode;
+          progressBar.style.width = '100%';
+          progressLog.innerHTML = `✓ Analysis complete · ${allResults.length} faculty scored`;
+          progressLog.style.color = 'var(--success)';
+          resultsArea.style.display = 'block';
+          const _batchLabel = evt.page_class === 'faculty_collection_page'
+            ? 'Faculty Collection'
+            : 'Directory Scan';
+          const titleSuffix = currentMode === 'batch'
+            ? `Top ${allResults.length} — ${_batchLabel}`
+            : `${allResults.length} Faculty`;
+          document.getElementById('results-title').textContent = `Results — ${titleSuffix}`;
+          if (currentMode === 'batch') {
+            document.getElementById('result-list').innerHTML = '';
+            document.getElementById('result-table').style.display = 'block';
+            renderBatchTable(allResults);
+          } else {
+            renderResults(allResults);
+          }
+          analyzeBtn.disabled = false;
+
+        } else if (evt.type === 'invalid_url') {
+          done++;
+          progressBar.style.width = Math.round((done / urlCount) * 90) + '%';
+          const typeLabel = evt.page_type === 'faculty_directory' ? 'directory page'
+                          : evt.page_type === 'unknown' ? 'unrecognised page' : evt.page_type;
+          const errCard = document.createElement('div');
+          errCard.style.cssText = 'background:var(--surface);border:1px solid var(--danger);border-radius:var(--radius);padding:16px 20px;margin-bottom:12px;display:flex;gap:12px;align-items:flex-start;';
+          errCard.innerHTML = `
+            <span style="font-size:20px;flex-shrink:0">⚠️</span>
+            <div>
+              <div style="font-weight:600;color:var(--danger);margin-bottom:4px;">Invalid URL (${escHtml(typeLabel)})</div>
+              <div style="font-size:13px;color:var(--muted);word-break:break-all;">${escHtml(evt.url)}</div>
+              <div style="font-size:13px;margin-top:6px;">${escHtml(evt.message)}</div>
+            </div>`;
+          if (!invalidSection) {
+            invalidSection = document.createElement('div');
+            invalidSection.style.cssText = 'margin-bottom:24px;';
+            const resultsDiv = document.getElementById('result-list');
+            resultsDiv.parentNode.insertBefore(invalidSection, resultsDiv);
+          }
+          invalidSection.appendChild(errCard);
+          resultsArea.style.display = 'block';
+
+        } else if (evt.type === 'error') {
+          if (evt.page_type === 'interactive_grouped_faculty_page') {
+            // Special display for JS-only interactive pages
+            const grpList = (evt.groups || []).map(g => `<li>${escHtml(g)}</li>`).join('');
+            progressLog.innerHTML = `
+              <div style="color:var(--warn); font-weight:600; margin-bottom:6px">
+                ⚠ Interactive page — cannot auto-extract
+              </div>
+              <div style="color:var(--text); font-size:13px; margin-bottom:8px">
+                ${escHtml(evt.message)}
+              </div>
+              ${grpList ? `<div style="color:var(--muted);font-size:12px;margin-bottom:4px">Detected groups:</div>
+              <ul style="color:var(--text);font-size:13px;padding-left:18px;line-height:1.7">${grpList}</ul>` : ''}`;
+            progressLog.style.color = 'inherit';
+          } else {
+            progressLog.innerHTML = '✗ ' + escHtml(evt.message);
+            progressLog.style.color = 'var(--danger)';
+          }
+          analyzeBtn.disabled = false;
+        }
+      }
+    }
+  } catch (e) {
+    progressLog.innerHTML = '✗ Network error: ' + escHtml(e.message);
+    progressLog.style.color = 'var(--danger)';
+    analyzeBtn.disabled = false;
+  }
+}
+
+// ── Render Results ─────────────────────────────────────────────────────────
+function renderResults(results) {
+  const list = document.getElementById('result-list');
+
+  // Sort by overall desc
+  const sorted = [...results].sort((a, b) => (b.overall_match || 0) - (a.overall_match || 0));
+
+  list.innerHTML = sorted.map((r, i) => {
+    // Debug: log Scholar + OpenAlex fields for each result card
+    console.log('[render]', r.name, {
+      scholar_url: r.scholar_url, scholar_source: r.scholar_source,
+      openalex_url: r.openalex_url, orcid: r.orcid,
+      openalex_topics: r.openalex_topics, openalex_stats: r.openalex_stats,
+    });
+    const rank  = i + 1;
+    const score = r.overall_match || 0;
+    const sc    = scoreBadge(score);
+    const ce    = r.cold_email || {};
+    const dims  = (r.scoring || {}).dimensions || {};
+
+    const profileLink = r.profile_url
+      ? `<a class="link-chip" href="${escHtml(r.profile_url)}" target="_blank" onclick="event.stopPropagation()">Profile ↗</a>` : '';
+    const _scholarFallback = !!r.scholar_url && r.scholar_source !== 'profile';
+    const _scholarSrcLabel = r.scholar_source === 'author_search'    ? 'Scholar author search'
+                           : r.scholar_source === 'fallback_website'  ? 'personal website scan'
+                           : r.scholar_source === 'fallback_search'   ? 'web search'
+                           : '';
+    const _scholarTitle    = _scholarFallback && _scholarSrcLabel
+      ? `title="Found via ${_scholarSrcLabel} (confidence: ${r.scholar_confidence||'low'})" `
+      : '';
+    const scholarLink = r.scholar_url
+      ? `<a class="link-chip${_scholarFallback?' link-chip-dim':''}" href="${escHtml(r.scholar_url)}" target="_blank" onclick="event.stopPropagation()" ${_scholarTitle}>Scholar${_scholarFallback?'~':''} ↗</a>` : '';
+    const cvLink = r.cv_url
+      ? `<a class="link-chip" href="${escHtml(r.cv_url)}" target="_blank" onclick="event.stopPropagation()">CV ↗</a>` : '';
+    const _webConf  = r.website_confidence || '';
+    const _webDim   = _webConf === 'low';
+    const _webTitle = _webConf ? `title="Website confidence: ${_webConf}" ` : '';
+    const webLink = r.website_url
+      ? `<a class="link-chip${_webDim?' link-chip-dim':''}" href="${escHtml(r.website_url)}" target="_blank" onclick="event.stopPropagation()" ${_webTitle}>Website ↗</a>` : '';
+    const _oaConf  = r.openalex_confidence || '';
+    const _oaDim   = _oaConf === 'low';
+    const _oaStats = r.openalex_stats || {};
+    const _oaTip   = _oaStats.h_index != null
+      ? `title="h-index=${_oaStats.h_index}, citations=${(_oaStats.cited_by_count||0).toLocaleString()}, works=${_oaStats.works_count||0}" `
+      : (_oaConf ? `title="OpenAlex confidence: ${_oaConf}" ` : '');
+    const openalexLink = r.openalex_url
+      ? `<a class="link-chip${_oaDim?' link-chip-dim':''}" href="${escHtml(r.openalex_url)}" target="_blank" onclick="event.stopPropagation()" ${_oaTip}>OpenAlex ↗</a>` : '';
+    const orcidLink = r.orcid
+      ? `<a class="link-chip" href="${escHtml(r.orcid)}" target="_blank" onclick="event.stopPropagation()" title="ORCID">ORCID ↗</a>` : '';
+
+    const dimBar = (label, val) => val != null ? `
+      <div class="score-row">
+        <span class="dim-name">${label}</span>
+        <div class="mini-bar-bg"><div class="mini-bar" style="width:${val*10}%"></div></div>
+        <span class="dim-val">${val}/10</span>
+      </div>` : '';
+
+    const _sc = r.scoring || {};
+    const _scholConf  = _sc.scholar_confidence || r.scholar_confidence || '';
+    const _scholW     = _sc.scholar_weight != null ? _sc.scholar_weight : (_sc.recent_scholar_match != null ? 0.35 : 0);
+    const _scholWPct  = Math.round(_scholW * 100);
+    const _scholLabel = _scholConf === 'low'    ? `Scholar (15% — low conf.)`
+                      : _scholConf === 'medium' ? `Scholar (25% — medium conf.)`
+                      : _sc.recent_scholar_match != null ? `Scholar (35%)` : 'Scholar';
+    const scholarRow = _sc.recent_scholar_match != null ? `
+      <div class="score-row" style="margin-top:6px; padding-top:6px; border-top:1px solid var(--border)">
+        <span class="dim-name" style="color:var(--text); font-weight:500; font-size:11.5px" title="Weight used in final score">${_scholLabel}</span>
+        <div class="mini-bar-bg"><div class="mini-bar" style="width:${(_sc.recent_scholar_match)*10}%; background:#34c759"></div></div>
+        <span class="dim-val">${_sc.recent_scholar_match}/10</span>
+      </div>` : `<div style="font-size:12px;color:var(--muted);margin-top:6px">Scholar: no data — profile score only</div>`;
+
+    const rsigs = r.signals || {};
+    const rfunding  = rsigs.funding   || 'unknown';
+    const rrecruit  = rsigs.recruiting || 'unclear';
+    const ractivity = rsigs.activity  || 'unknown';
+    const rFallback = r.scholar_source === 'fallback_search';
+    const rFundL  = { strong: '$ Funded', medium: '$ Grants' };
+    const rRecL   = { likely_open: 'Recruiting' };
+    const rActL   = { high: 'Active ↑', medium: 'Active', low: 'Low Activity' };
+    const rSigBadges = [
+      rFundL[rfunding]   ? `<span class="sig-badge sig-funding-${rfunding}">${rFundL[rfunding]}</span>`    : '',
+      rRecL[rrecruit]    ? `<span class="sig-badge sig-recruiting-open">${rRecL[rrecruit]}</span>`          : '',
+      rActL[ractivity]   ? `<span class="sig-badge sig-activity-${ractivity}">${rActL[ractivity]}</span>`  : '',
+      rFallback          ? `<span class="sig-badge sig-scholar-fallback" title="Scholar found via search">Scholar~</span>` : '',
+    ].filter(Boolean).join('');
+
+    return `
+<div class="result-row" id="row-${rank}" onclick="toggleRow(${rank})">
+  <div class="row-summary">
+    <div class="rank-num">${rank}</div>
+    <div class="row-main">
+      <div class="row-name">
+        ${escHtml(r.name)}
+        <div class="row-links">${profileLink}${scholarLink}${cvLink}${webLink}${openalexLink}${orcidLink}</div>
+      </div>
+      ${rSigBadges ? `<div class="sig-badges" style="margin-top:4px">${rSigBadges}</div>` : ''}
+      <div class="interest-pills">${
+        (r.refined_interests || '').split(';').map(s => s.trim()).filter(Boolean)
+          .map(s => `<span class="interest-pill">${escHtml(s)}</span>`).join('')
+      }</div>
+      ${(r.groups && r.groups.length) ? `<div class="group-tags">${
+        r.groups.map(g => `<span class="group-tag" title="Research group">${escHtml(g)}</span>`).join('')
+      }</div>` : ''}
+      <div class="row-interests" style="margin-top:7px; color:var(--text); font-size:13.5px">
+        ${escHtml(r.match_reason || '')}
+      </div>
+    </div>
+    <div class="row-score">
+      <span class="score-badge ${sc.cls}">${score.toFixed(1)}</span>
+    </div>
+    <div class="chevron">⌄</div>
+  </div>
+  <div class="row-detail">
+    <div class="detail-grid">
+      <div class="detail-block">
+        <h4>Score Breakdown</h4>
+        ${dimBar('Research', dims.research)}
+        ${dimBar('Method', dims.method)}
+        ${dimBar('Application', dims.application)}
+        ${dimBar('Style', dims.style)}
+        ${scholarRow}
+        <div style="margin-top:8px; font-size:12px; color:var(--muted)">
+          Profile ${(r.scoring||{}).faculty_profile_match||'?'}
+          · Scholar ${(r.scoring||{}).recent_scholar_match ?? 'N/A'}${_scholWPct ? ` <span title="Scholar contribution weight">(×${_scholWPct}%)</span>` : ''}
+          · <strong>Overall ${score.toFixed(2)}</strong>
+          ${r.scholar_pubs ? ` · ${r.scholar_pubs} papers` : ''}
+        </div>
+      </div>
+      <div class="detail-block">
+        <h4>Outreach Advice</h4>
+        <div class="cold-email">
+          ${ce.entry_point ? `<div class="cold-item"><span class="cold-label">Entry</span><span>${escHtml(ce.entry_point)}</span></div>` : ''}
+          ${ce.highlight_experience ? `<div class="cold-item"><span class="cold-label">Experience</span><span>${escHtml(ce.highlight_experience)}</span></div>` : ''}
+          ${ce.convincing_point ? `<div class="cold-item"><span class="cold-label">Highlight</span><span>${escHtml(ce.convincing_point)}</span></div>` : ''}
+        </div>
+        ${r.bio ? `<div style="margin-top:14px; font-size:12px; color:var(--muted); line-height:1.6">${escHtml(r.bio)}…</div>` : ''}
+      </div>
+    </div>
+  </div>
+</div>`;
+  }).join('');
+}
+
+function toggleRow(rank) {
+  document.getElementById('row-' + rank).classList.toggle('open');
+}
+
+// ── Star rating (0–10 score → 5 stars, half-star precision) ───────────────
+function starsHtml(score10) {
+  const stars5 = score10 / 2;          // convert 0–10 → 0–5
+  const full   = Math.floor(stars5);
+  const half   = stars5 - full >= 0.5 ? 1 : 0;
+  const empty  = 5 - full - half;
+  return '<span class="bt-stars">'
+    + '<span class="star-full">' + '★'.repeat(full)  + '</span>'
+    + (half ? '<span class="star-half">★</span>' : '')
+    + '<span class="star-empty">' + '☆'.repeat(empty) + '</span>'
+    + '</span>';
+}
+
+// ── Batch Table (directory mode — flat 6-column) ───────────────────────────
+function renderBatchTable(results) {
+  const container = document.getElementById('result-table');
+  const sorted = [...results].sort((a, b) => (b.overall_match || 0) - (a.overall_match || 0));
+
+  const rows = sorted.map((r, i) => {
+    // Debug: log Scholar + OpenAlex fields for each batch row
+    console.log('[batch-render]', r.name, {
+      scholar_url: r.scholar_url, openalex_url: r.openalex_url, orcid: r.orcid,
+    });
+    const rank  = i + 1;
+    const score = r.overall_match || 0;
+    const sc    = scoreBadge(score);
+    const ce    = r.cold_email || {};
+
+    const pills = (r.refined_interests || '').split(';').map(s => s.trim()).filter(Boolean).slice(0, 4)
+      .map(s => `<span class="interest-pill bt-pill">${escHtml(s)}</span>`).join('');
+
+    const pu = r.profile_url ? `<a class="link-chip" href="${escHtml(r.profile_url)}" target="_blank">Profile ↗</a>` : '';
+    const _bsFallback = !!r.scholar_url && r.scholar_source !== 'profile';
+    const _bsSrcLabel = r.scholar_source === 'author_search'    ? 'Scholar author search'
+                      : r.scholar_source === 'fallback_website'  ? 'personal website scan'
+                      : r.scholar_source === 'fallback_search'   ? 'web search'
+                      : '';
+    const _bsTitle    = _bsFallback && _bsSrcLabel
+      ? `title="Found via ${_bsSrcLabel} (${r.scholar_confidence||'low'} confidence)" ` : '';
+    const su = r.scholar_url
+      ? `<a class="link-chip${_bsFallback?' link-chip-dim':''}" href="${escHtml(r.scholar_url)}" target="_blank" ${_bsTitle}>Scholar${_bsFallback?'~':''} ↗</a>` : '';
+    const cu = r.cv_url ? `<a class="link-chip" href="${escHtml(r.cv_url)}" target="_blank">CV ↗</a>` : '';
+    const _bwConf = r.website_confidence || '';
+    const _bwDim  = _bwConf === 'low';
+    const _bwTitle = _bwConf ? `title="Website confidence: ${_bwConf}" ` : '';
+    const wu = r.website_url
+      ? `<a class="link-chip${_bwDim?' link-chip-dim':''}" href="${escHtml(r.website_url)}" target="_blank" ${_bwTitle}>Website ↗</a>` : '';
+    const _bOaStats = r.openalex_stats || {};
+    const _bOaTip   = _bOaStats.h_index != null
+      ? `title="h-index=${_bOaStats.h_index}, citations=${(_bOaStats.cited_by_count||0).toLocaleString()}" ` : '';
+    const oau = r.openalex_url
+      ? `<a class="link-chip" href="${escHtml(r.openalex_url)}" target="_blank" ${_bOaTip}>OpenAlex ↗</a>` : '';
+    const orcu = r.orcid
+      ? `<a class="link-chip" href="${escHtml(r.orcid)}" target="_blank" title="ORCID">ORCID ↗</a>` : '';
+
+    const sigs = r.signals || {};
+    const funding   = sigs.funding   || 'unknown';
+    const recruit   = sigs.recruiting || 'unclear';
+    const activity  = sigs.activity  || 'unknown';
+    const isFallback = r.scholar_source === 'fallback_search';
+
+    const fundingLabel   = { strong: '$ Funded', medium: '$ Grants' };
+    const recruitLabel   = { likely_open: 'Recruiting' };
+    const activityLabel  = { high: 'Active ↑', medium: 'Active', low: 'Low Activity' };
+
+    const sigBadges = [
+      fundingLabel[funding]  ? `<span class="sig-badge sig-funding-${funding}">${fundingLabel[funding]}</span>`   : '',
+      recruitLabel[recruit]  ? `<span class="sig-badge sig-recruiting-open">${recruitLabel[recruit]}</span>`       : '',
+      activityLabel[activity]? `<span class="sig-badge sig-activity-${activity}">${activityLabel[activity]}</span>`: '',
+      isFallback             ? `<span class="sig-badge sig-scholar-fallback" title="Scholar found via search">Scholar~</span>` : '',
+    ].join('');
+
+    return `<tr class="bt-row">
+      <td class="bt-col bt-rank">${rank}</td>
+      <td class="bt-col bt-faculty">
+        <div class="bt-name">${escHtml(r.name)}</div>
+        <div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap">${pu}${su}${cu}${wu}${oau}${orcu}</div>
+        ${sigBadges ? `<div class="sig-badges">${sigBadges}</div>` : ''}
+        ${(r.groups && r.groups.length) ? `<div class="group-tags">${
+          r.groups.map(g => `<span class="group-tag" title="Research group">${escHtml(g)}</span>`).join('')
+        }</div>` : ''}
+      </td>
+      <td class="bt-col bt-interests">
+        <div class="interest-pills">${pills}</div>
+      </td>
+      <td class="bt-col bt-score">
+        <div class="bt-score-wrap">
+          <span class="score-badge ${sc.cls}">${score.toFixed(1)}</span>
+          ${starsHtml(score)}
+        </div>
+      </td>
+      <td class="bt-col bt-reason">${escHtml(r.match_reason || '—')}</td>
+      <td class="bt-col bt-outreach">
+        ${ce.entry_point         ? `<div class="bt-bullet"><span class="bt-tag">Hook</span><span>${escHtml(ce.entry_point)}</span></div>` : ''}
+        ${ce.highlight_experience ? `<div class="bt-bullet"><span class="bt-tag">Experience</span><span>${escHtml(ce.highlight_experience)}</span></div>` : ''}
+        ${ce.convincing_point    ? `<div class="bt-bullet"><span class="bt-tag">Fit</span><span>${escHtml(ce.convincing_point)}</span></div>` : ''}
+      </td>
+    </tr>`;
+  });
+
+  container.innerHTML = `
+    <table class="batch-table">
+      <thead>
+        <tr>
+          <th class="bt-rank">#</th>
+          <th class="bt-faculty">Faculty</th>
+          <th class="bt-interests">Research Interests</th>
+          <th class="bt-score">Matching Score</th>
+          <th class="bt-reason">Match Reason</th>
+          <th class="bt-outreach">Outreach Advice</th>
+        </tr>
+      </thead>
+      <tbody>${rows.join('')}</tbody>
+    </table>`;
+}
+
+function scoreBadge(score) {
+  if (score >= 7.5) return { cls: 'score-hi' };
+  if (score >= 6.0) return { cls: 'score-mid' };
+  return { cls: 'score-lo' };
+}
+
+// ── Export ─────────────────────────────────────────────────────────────────
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(allResults, null, 2)], { type: 'application/json' });
+  download(blob, 'advisor_results.json');
+}
+
+function exportMarkdown() {
+  const sorted = [...allResults].sort((a, b) => (b.overall_match||0) - (a.overall_match||0));
+  const header = '| Rank | Faculty | Profile | Scholar | OpenAlex | Research Interests | Score | Match Reason | Entry Point |\n'
+               + '| :--: | -------- | :---: | :---: | :---: | ------------ | :---: | --- | --- |\n';
+  const rows = sorted.map((r, i) => {
+    const pu  = r.profile_url  ? `[link](${r.profile_url})`  : 'N/A';
+    const su  = r.scholar_url  ? `[link](${r.scholar_url})`  : 'N/A';
+    const oau = r.openalex_url ? `[link](${r.openalex_url})` : 'N/A';
+    const ce  = r.cold_email || {};
+    return `| ${i+1} | ${r.name} | ${pu} | ${su} | ${oau} | ${(r.refined_interests||'').replace(/\|/g,'·')} | **${(r.overall_match||0).toFixed(1)}/10** | ${(r.match_reason||'').replace(/\|/g,'·')} | ${(ce.entry_point||'').replace(/\|/g,'·')} |`;
+  });
+  const md = '# Advisor Match Results\n\n' + header + rows.join('\n');
+  download(new Blob([md], { type: 'text/markdown' }), 'advisor_results.md');
+}
+
+function download(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ── Util ───────────────────────────────────────────────────────────────────
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
