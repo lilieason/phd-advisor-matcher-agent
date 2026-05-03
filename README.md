@@ -4,7 +4,7 @@ Paste a faculty directory URL → get a ranked list of the best-fit PhD advisors
 
 ## Quickstart
 
-**Requirements:** Python 3.9+, an API key from [Anthropic](https://console.anthropic.com), [OpenAI](https://platform.openai.com), or [Google Gemini](https://aistudio.google.com) — see **[How to get an API key](get_api_key/README.md)**
+**Requirements:** Python 3.9+, an API key from [Anthropic](https://platform.claude.com/settings/keys), [OpenAI](https://platform.openai.com), or [Google Gemini](https://aistudio.google.com) — see **[How to get an API key](get_api_key/README.md)**
 
 ```bash
 # 1. Clone

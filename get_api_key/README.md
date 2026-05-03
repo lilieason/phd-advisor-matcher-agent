@@ -8,10 +8,9 @@ This app supports three LLM providers. Pick any one — **Anthropic is recommend
 
 **Model used:** `claude-haiku-4-5` — fast and affordable
 
-1. Go to **https://console.anthropic.com**
+1. Go to **https://platform.claude.com/settings/keys**
 2. Sign up or log in
-3. Click **"API Keys"** in the left sidebar
-4. Click **"Create Key"**, give it a name, copy the key
+3. Click **"Create Key"**, give it a name, copy the key
 5. New accounts receive **$5 free credits** (no credit card required initially)
 
 **Cost:** ~$0.001 per professor analyzed (very cheap)
