@@ -2023,12 +2023,16 @@ def _generate_recommendation(
         try:
             msg = client.messages.create(**payload)
             return _extract_json(msg.content[0].text)
-        except anthropic.RateLimitError:
-            if attempt == 2:
+        except Exception as exc:
+            is_rate_limit = (
+                "rate" in str(exc).lower() or "429" in str(exc)
+                or isinstance(exc, getattr(anthropic, "RateLimitError", type(None)))
+            )
+            if not is_rate_limit or attempt == 2:
                 raise
-            wait = 20 * (attempt + 1)   # 20s → 40s
+            wait = 20 * (attempt + 1)
             logger.warning(
-                "[Stage F] 429 rate limit for %s — waiting %ds (attempt %d/3)",
+                "[Stage F] rate limit for %s — waiting %ds (attempt %d/3)",
                 profile.get("name", "?"), wait, attempt + 1,
             )
             time.sleep(wait)
@@ -2156,7 +2160,11 @@ def _build_result(name: str, profile_url: str, gs_url: str,
             "cited_by_count": oa_stats.get("cited_by_count", 0),
             "works_count":    oa_stats.get("works_count", 0),
         },
-        "refined_interests": rec.get("refined_interests", ""),
+        "refined_interests": (
+            "; ".join(rec["refined_interests"])
+            if isinstance(rec.get("refined_interests"), list)
+            else rec.get("refined_interests", "")
+        ),
         "overall_match": overall,
         "match_reason": rec.get("match_reason", ""),
         "cold_email": rec.get("cold_email", {}),

@@ -995,7 +995,7 @@ function renderResults(results) {
       </div>
       ${rSigBadges ? `<div class="sig-badges" style="margin-top:4px">${rSigBadges}</div>` : ''}
       <div class="interest-pills">${
-        (r.refined_interests || '').split(';').map(s => s.trim()).filter(Boolean)
+        (Array.isArray(r.refined_interests) ? r.refined_interests.join('; ') : (r.refined_interests || '')).split(';').map(s => s.trim()).filter(Boolean)
           .map(s => `<span class="interest-pill">${escHtml(s)}</span>`).join('')
       }</div>
       ${(r.groups && r.groups.length) ? `<div class="group-tags">${
@@ -1073,7 +1073,7 @@ function renderBatchTable(results) {
     const sc    = scoreBadge(score);
     const ce    = r.cold_email || {};
 
-    const pills = (r.refined_interests || '').split(';').map(s => s.trim()).filter(Boolean).slice(0, 4)
+    const pills = (Array.isArray(r.refined_interests) ? r.refined_interests.join('; ') : (r.refined_interests || '')).split(';').map(s => s.trim()).filter(Boolean).slice(0, 4)
       .map(s => `<span class="interest-pill bt-pill">${escHtml(s)}</span>`).join('');
 
     const pu = r.profile_url ? `<a class="link-chip" href="${escHtml(r.profile_url)}" target="_blank">Profile ↗</a>` : '';
