@@ -8,12 +8,12 @@ Paste a faculty directory URL → get a ranked list of the best-fit PhD advisors
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/YOUR_USERNAME/phd-advisor-matcher.git
+git clone https://github.com/lilieason/phd-advisor-matcher.git
 cd phd-advisor-matcher
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 # 2. Start the web app
-python web_app.py
+python3 web_app.py
 
 # 3. Open http://localhost:8000
 #    Enter your Anthropic API key, upload your CV, paste a faculty URL → done
