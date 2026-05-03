@@ -7,15 +7,21 @@ Paste a faculty directory URL → get a ranked list of the best-fit PhD advisors
 **Requirements:** Python 3.9+, an [Anthropic API key](https://console.anthropic.com)
 
 ```bash
-# 1. Clone and install
+# 1. Clone
 git clone https://github.com/lilieason/phd-advisor-matcher.git
 cd phd-advisor-matcher
-pip3 install -r requirements.txt
 
-# 2. Start the web app
-python3 web_app.py
+# 2. Create and activate a virtual environment
+python3 -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-# 3. Open http://localhost:8000
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Start the web app
+python web_app.py
+
+# 5. Open http://localhost:8000
 #    Enter your Anthropic API key, upload your CV, paste a faculty URL → done
 ```
 
