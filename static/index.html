@@ -88,11 +88,13 @@
   #drop-zone .label { font-size: 15px; font-weight: 500; color: var(--text); }
   #drop-zone .sub   { font-size: 13px; color: var(--muted); margin-top: 4px; }
   #cv-status {
-    margin-top: 14px;
-    font-size: 13px;
-    color: var(--success);
+    margin-top: 10px;
+    font-size: 12px;
     font-weight: 500;
     display: none;
+    border-radius: 980px;
+    padding: 3px 12px;
+    width: fit-content;
   }
 
   /* ── Textarea ── */
@@ -198,9 +200,9 @@
     border-radius: 980px;
     white-space: nowrap;
   }
-  .score-hi  { background: rgba(52,199,89,0.12);  color: #1a7f37; }
-  .score-mid { background: rgba(255,149,0,0.12);  color: #b25000; }
-  .score-lo  { background: rgba(142,142,147,0.12); color: #6e6e73; }
+  .score-hi  { background: #DDE5B6; color: #4a6641; }
+  .score-mid { background: #eaeee0; color: #697a5a; }
+  .score-lo  { background: #f0f2ec; color: #8a9280; }
 
   /* ── Table ── */
   .result-list { display: flex; flex-direction: column; gap: 10px; }
@@ -244,14 +246,14 @@
   .link-chip {
     font-size: 11px;
     font-weight: 500;
-    color: var(--accent);
-    background: rgba(0,113,227,0.07);
+    color: #2e7272;
+    background: #BEE9E8;
     border-radius: 4px;
     padding: 2px 7px;
     text-decoration: none;
     white-space: nowrap;
   }
-  .link-chip:hover { background: rgba(0,113,227,0.13); }
+  .link-chip:hover { background: #a5dcdb; }
   /* Dim chip: low-confidence website or fallback Scholar link */
   .link-chip-dim { opacity: 0.6; font-style: italic; }
 
@@ -360,11 +362,11 @@
   .interest-pills { display: flex; flex-direction: column; gap: 4px; margin-top: 5px; }
   .interest-pill {
     font-size: 11px;
-    background: #d6e4cc;
-    border: 1px solid #b8cfa8;
+    background: var(--bg);
+    border: 1px solid var(--border);
     border-radius: 980px;
     padding: 2px 9px;
-    color: #4a6641;
+    color: var(--muted);
     white-space: nowrap;
     display: inline-block;
     width: fit-content;
@@ -490,8 +492,8 @@
     border-radius: 3px; padding: 1px 5px; white-space: nowrap;
   }
   /* Funding */
-  .sig-funding-strong  { background: #d1fadf; color: #1a7f44; }
-  .sig-funding-medium  { background: #fff3cd; color: #856404; }
+  .sig-funding-strong  { background: #BEE9E8; color: #2e7272; }
+  .sig-funding-medium  { background: #d8f2f1; color: #3d8080; }
   .sig-funding-unknown { background: #f0f0f0; color: #888; }
   /* Recruiting */
   .sig-recruiting-open    { background: #cfe2ff; color: #0a58ca; }
@@ -703,6 +705,8 @@ dropZone.addEventListener('drop', e => {
 async function uploadCV(file) {
   if (!file) return;
   cvStatus.style.display = 'block';
+  cvStatus.style.background = 'rgba(0,0,0,0.05)';
+  cvStatus.style.color = 'var(--muted)';
   cvStatus.textContent = '⏳ Reading CV…';
   cvText = null;
   checkReady();
@@ -714,15 +718,18 @@ async function uploadCV(file) {
     const res = await fetch('/upload-cv', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) {
+      cvStatus.style.background = 'rgba(255,59,48,0.08)';
       cvStatus.style.color = 'var(--danger)';
       cvStatus.textContent = '✗ ' + data.error;
     } else {
       cvText = data.cv_text;
-      cvStatus.style.color = 'var(--success)';
+      cvStatus.style.background = '#DDE5B6';
+      cvStatus.style.color = '#4a6641';
       cvStatus.textContent = `✓ ${data.filename} · ${data.chars.toLocaleString()} characters`;
       checkReady();
     }
   } catch (e) {
+    cvStatus.style.background = 'rgba(255,59,48,0.08)';
     cvStatus.style.color = 'var(--danger)';
     cvStatus.textContent = '✗ Upload failed: ' + e.message;
   }
