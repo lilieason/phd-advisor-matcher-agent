@@ -8,18 +8,20 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg:       #f5f5f7;
+    --bg:       #F0EAD2;
     --surface:  #ffffff;
-    --border:   #d2d2d7;
-    --text:     #1d1d1f;
-    --muted:    #6e6e73;
-    --accent:   #0071e3;
-    --accent-h: #0077ed;
-    --danger:   #ff3b30;
-    --success:  #34c759;
-    --warn:     #ff9500;
+    --border:   #DEDBD2;
+    --text:     #4A5759;
+    --muted:    #A98467;
+    --accent:   #ADC178;
+    --accent-h: #9aac65;
+    --danger:   #c0504d;
+    --success:  #ADC178;
+    --warn:     #A98467;
+    --green:    #DDE5B6;
+    --blue:     #BEE9E8;
     --radius:   14px;
-    --shadow:   0 2px 20px rgba(0,0,0,0.07);
+    --shadow:   0 2px 20px rgba(74,87,89,0.08);
     --font:     -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   }
 
@@ -34,7 +36,7 @@
 
   /* ── Header ── */
   header {
-    background: rgba(255,255,255,0.85);
+    background: rgba(240,234,210,0.92);
     backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     border-bottom: 1px solid var(--border);
@@ -79,7 +81,7 @@
   }
   #drop-zone:hover, #drop-zone.drag-over {
     border-color: var(--accent);
-    background: rgba(0,113,227,0.04);
+    background: rgba(173,193,120,0.06);
   }
   #drop-zone input[type=file] {
     position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
@@ -145,7 +147,7 @@
     transition: background 0.15s;
     font-family: var(--font);
   }
-  .btn-ghost:hover { background: rgba(0,113,227,0.06); }
+  .btn-ghost:hover { background: rgba(173,193,120,0.10); }
 
   /* ── Progress ── */
   #progress-area { display: none; }
@@ -198,9 +200,9 @@
     border-radius: 980px;
     white-space: nowrap;
   }
-  .score-hi  { background: rgba(52,199,89,0.12);  color: #1a7f37; }
-  .score-mid { background: rgba(255,149,0,0.12);  color: #b25000; }
-  .score-lo  { background: rgba(142,142,147,0.12); color: #6e6e73; }
+  .score-hi  { background: rgba(221,229,182,0.55); color: #6C584C; }
+  .score-mid { background: rgba(240,234,210,0.8);  color: #A98467; }
+  .score-lo  { background: rgba(222,219,210,0.6);  color: #A98467; }
 
   /* ── Table ── */
   .result-list { display: flex; flex-direction: column; gap: 10px; }
@@ -244,14 +246,14 @@
   .link-chip {
     font-size: 11px;
     font-weight: 500;
-    color: var(--accent);
-    background: rgba(0,113,227,0.07);
+    color: #4A5759;
+    background: #BEE9E8;
     border-radius: 4px;
     padding: 2px 7px;
     text-decoration: none;
     white-space: nowrap;
   }
-  .link-chip:hover { background: rgba(0,113,227,0.13); }
+  .link-chip:hover { background: #a8dedd; }
   /* Dim chip: low-confidence website or fallback Scholar link */
   .link-chip-dim { opacity: 0.6; font-style: italic; }
 
@@ -260,9 +262,9 @@
   .group-tag {
     font-size: 10.5px;
     font-weight: 500;
-    background: rgba(0,113,227,0.08);
-    color: #0071e3;
-    border: 1px solid rgba(0,113,227,0.2);
+    background: rgba(190,233,232,0.35);
+    color: #4A5759;
+    border: 1px solid rgba(74,87,89,0.15);
     border-radius: 20px;
     padding: 1px 8px;
     white-space: nowrap;
@@ -360,12 +362,17 @@
   .interest-pills { display: flex; flex-direction: column; gap: 4px; margin-top: 5px; }
   .interest-pill {
     font-size: 11px;
-    background: var(--bg);
-    border: 1px solid var(--border);
+    background: #DDE5B6;
+    border: 1px solid #ADC178;
     border-radius: 980px;
     padding: 2px 9px;
-    color: var(--muted);
+    color: #6C584C;
     white-space: nowrap;
+    display: inline-block;
+    width: fit-content;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* ── Util ── */
@@ -385,7 +392,7 @@
   }
   .batch-table thead th {
     padding: 11px 14px;
-    background: #f5f5f7;
+    background: #F7E1D7;
     border-bottom: 1.5px solid var(--border);
     font-size: 11px;
     font-weight: 600;
@@ -411,8 +418,8 @@
   .batch-summary-row .col-toggle { text-align: center; }
 
   .faculty-name { font-weight: 600; font-size: 14px; display: block; margin-bottom: 3px; }
-  .priority-high { font-size: 11px; color: #1a7f37; font-weight: 600; }
-  .priority-mid  { font-size: 11px; color: #b25000; font-weight: 600; }
+  .priority-high { font-size: 11px; color: #6C584C; font-weight: 600; }
+  .priority-mid  { font-size: 11px; color: #A98467; font-weight: 600; }
   .priority-lo   { font-size: 11px; color: var(--muted); }
 
   .batch-chevron {
@@ -518,7 +525,7 @@
   .bt-stars { font-size: 12px; letter-spacing: 1px; line-height: 1; }
   .star-full  { color: #f5a623; }
   .star-half  { color: #f5a623; opacity: 0.7; }
-  .star-empty { color: #d2d2d7; }
+  .star-empty { color: #DEDBD2; }
 </style>
 </head>
 <body>
@@ -966,7 +973,7 @@ function renderResults(results) {
     const scholarRow = _sc.recent_scholar_match != null ? `
       <div class="score-row" style="margin-top:6px; padding-top:6px; border-top:1px solid var(--border)">
         <span class="dim-name" style="color:var(--text); font-weight:500; font-size:11.5px" title="Weight used in final score">${_scholLabel}</span>
-        <div class="mini-bar-bg"><div class="mini-bar" style="width:${(_sc.recent_scholar_match)*10}%; background:#34c759"></div></div>
+        <div class="mini-bar-bg"><div class="mini-bar" style="width:${(_sc.recent_scholar_match)*10}%; background:#ADC178"></div></div>
         <span class="dim-val">${_sc.recent_scholar_match}/10</span>
       </div>` : `<div style="font-size:12px;color:var(--muted);margin-top:6px">Scholar: no data — profile score only</div>`;
 
@@ -997,7 +1004,7 @@ function renderResults(results) {
       ${rSigBadges ? `<div class="sig-badges" style="margin-top:4px">${rSigBadges}</div>` : ''}
       <div class="interest-pills">${
         (Array.isArray(r.refined_interests) ? r.refined_interests.join('; ') : (r.refined_interests || '')).split(/[;,]/).map(s => s.trim()).filter(Boolean)
-          .map(s => `<span class="interest-pill">${escHtml(s)}</span>`).join('')
+          .map(s => `<span class="interest-pill" title="${escHtml(s.trim())}">${escHtml(truncWords(s))}</span>`).join('')
       }</div>
       ${(r.groups && r.groups.length) ? `<div class="group-tags">${
         r.groups.map(g => `<span class="group-tag" title="Research group">${escHtml(g)}</span>`).join('')
@@ -1074,7 +1081,7 @@ function renderBatchTable(results) {
     const ce    = r.cold_email || {};
 
     const pills = (Array.isArray(r.refined_interests) ? r.refined_interests.join('; ') : (r.refined_interests || '')).split(/[;,]/).map(s => s.trim()).filter(Boolean).slice(0, 4)
-      .map(s => `<span class="interest-pill bt-pill">${escHtml(s)}</span>`).join('');
+      .map(s => `<span class="interest-pill bt-pill" title="${escHtml(s.trim())}">${escHtml(truncWords(s))}</span>`).join('');
 
     const pu = r.profile_url ? `<a class="link-chip" href="${escHtml(r.profile_url)}" target="_blank">Profile ↗</a>` : '';
     const _bsFallback = !!r.scholar_url && r.scholar_source !== 'profile';
@@ -1201,6 +1208,11 @@ function escHtml(str) {
   return String(str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;');
+}
+
+function truncWords(str, max = 4) {
+  const words = str.trim().split(/\s+/);
+  return words.length > max ? words.slice(0, max).join(' ') + '…' : str.trim();
 }
 </script>
 </body>
