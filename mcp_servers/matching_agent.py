@@ -1922,7 +1922,6 @@ STRICT RULES — follow exactly:
 3. PERSONALIZATION — this is the most important rule:
    - Read the faculty's research focus, publications, and bio FIRST.
    - Then ask: "Which specific CV project/skill is closest to WHAT THIS PROFESSOR actually studies?"
-   - highlight_experience must cite that specific match — NOT the most impressive CV line overall.
    - entry_point must reference a real paper title or specific topic from THIS professor's work.
    - Do NOT reuse the same highlight for different professors. Each must be uniquely tailored.
 4. Generic phrases like "my ML background", "my interpretable ML expertise", or any experience
@@ -1933,7 +1932,6 @@ STRICT RULES — follow exactly:
   "match_reason": "<1 sentence, ≤20 words: the single most specific shared research theme>",
   "cold_email": {
     "entry_point": "<1 sentence, ≤15 words: open with one specific paper title or named project from THIS professor's recent publications>",
-    "highlight_experience": "<1 sentence, ≤15 words: the ONE CV project or result most relevant to THIS professor's stated research focus — not the most impressive, the most relevant>",
     "convincing_point": "<1 sentence, ≤15 words: one concrete, specific reason this student fits THIS lab — avoid generic claims>"
   }
 }
@@ -2001,11 +1999,9 @@ def _generate_recommendation(
         f"{scholar_block}"
         f"{extra}"
     )
-    # Explicit per-professor anchor at the end to prevent generic highlights
     focus_anchor = (
         f"\n\nThis professor's primary research focus is: "
-        f"{'; '.join(oa_topics[:2]) or profile.get('research_interests','')[:120]}\n"
-        f"Choose highlight_experience from the CV that matches THIS focus specifically."
+        f"{'; '.join(oa_topics[:2]) or profile.get('research_interests','')[:120]}"
     )
     payload = dict(
         model="claude-haiku-4-5-20251001",

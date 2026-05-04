@@ -357,7 +357,7 @@
   .section-label { display: flex; align-items: center; gap: 8px; }
 
   /* ── Pill tags (interests) ── */
-  .interest-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+  .interest-pills { display: flex; flex-direction: column; gap: 4px; margin-top: 5px; }
   .interest-pill {
     font-size: 11px;
     background: var(--bg);
@@ -1030,7 +1030,6 @@ function renderResults(results) {
         <h4>Outreach Advice</h4>
         <div class="cold-email">
           ${ce.entry_point ? `<div class="cold-item"><span class="cold-label">Entry</span><span>${escHtml(ce.entry_point)}</span></div>` : ''}
-          ${ce.highlight_experience ? `<div class="cold-item"><span class="cold-label">Experience</span><span>${escHtml(ce.highlight_experience)}</span></div>` : ''}
           ${ce.convincing_point ? `<div class="cold-item"><span class="cold-label">Highlight</span><span>${escHtml(ce.convincing_point)}</span></div>` : ''}
         </div>
         ${r.bio ? `<div style="margin-top:14px; font-size:12px; color:var(--muted); line-height:1.6">${escHtml(r.bio)}…</div>` : ''}
@@ -1139,7 +1138,6 @@ function renderBatchTable(results) {
       <td class="bt-col bt-reason">${escHtml(r.match_reason || '—')}</td>
       <td class="bt-col bt-outreach">
         ${ce.entry_point         ? `<div class="bt-bullet"><span class="bt-tag">Hook</span><span>${escHtml(ce.entry_point)}</span></div>` : ''}
-        ${ce.highlight_experience ? `<div class="bt-bullet"><span class="bt-tag">Experience</span><span>${escHtml(ce.highlight_experience)}</span></div>` : ''}
         ${ce.convincing_point    ? `<div class="bt-bullet"><span class="bt-tag">Fit</span><span>${escHtml(ce.convincing_point)}</span></div>` : ''}
       </td>
     </tr>`;
