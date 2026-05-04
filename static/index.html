@@ -13,8 +13,8 @@
     --border:   #d2d2d7;
     --text:     #1d1d1f;
     --muted:    #6e6e73;
-    --accent:   #0071e3;
-    --accent-h: #0077ed;
+    --accent:   #5a8fc0;
+    --accent-h: #4e82b4;
     --danger:   #ff3b30;
     --success:  #34c759;
     --warn:     #ff9500;
@@ -89,12 +89,9 @@
   #drop-zone .sub   { font-size: 13px; color: var(--muted); margin-top: 4px; }
   #cv-status {
     margin-top: 10px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
     display: none;
-    border-radius: 980px;
-    padding: 3px 12px;
-    width: fit-content;
   }
 
   /* ── Textarea ── */
@@ -492,16 +489,16 @@
     border-radius: 3px; padding: 1px 5px; white-space: nowrap;
   }
   /* Funding */
-  .sig-funding-strong  { background: #BEE9E8; color: #2e7272; }
-  .sig-funding-medium  { background: #d8f2f1; color: #3d8080; }
+  .sig-funding-strong  { background: #EDAFB8; color: #7a2a38; }
+  .sig-funding-medium  { background: #f5d0d7; color: #8a4452; }
   .sig-funding-unknown { background: #f0f0f0; color: #888; }
   /* Recruiting */
   .sig-recruiting-open    { background: #cfe2ff; color: #0a58ca; }
   .sig-recruiting-unclear { display: none; }   /* hide "unclear" — it adds no value */
   /* Activity */
-  .sig-activity-high    { background: #d1fadf; color: #1a7f44; }
-  .sig-activity-medium  { background: #fff3cd; color: #856404; }
-  .sig-activity-low     { background: #fde8e8; color: #b91c1c; }
+  .sig-activity-high    { background: #EDAFB8; color: #7a2a38; }
+  .sig-activity-medium  { background: #f5d0d7; color: #8a4452; }
+  .sig-activity-low     { background: #fae8eb; color: #b07080; }
   .sig-activity-unknown { display: none; }
   /* Scholar fallback indicator */
   .sig-scholar-fallback { background: #ede9fe; color: #6d28d9; }
@@ -668,7 +665,7 @@ function loadKeyForProvider(p) {
   const saved = localStorage.getItem('api_key_' + p);
   apiKeyInput.value = saved || '';
   apiKeyStatus.textContent = saved ? '✓ Key loaded' : '';
-  apiKeyStatus.style.color = 'var(--success)';
+  apiKeyStatus.style.color = '#6a9550';
   providerHint.innerHTML = PROVIDER_HINTS[p] || '';
   checkReady();
 }
@@ -682,7 +679,7 @@ apiKeyInput.addEventListener('input', () => {
   if (v) {
     localStorage.setItem('api_key_' + p, v);
     apiKeyStatus.textContent = '✓ Saved';
-    apiKeyStatus.style.color = 'var(--success)';
+    apiKeyStatus.style.color = '#6a9550';
   } else {
     apiKeyStatus.textContent = '';
     localStorage.removeItem('api_key_' + p);
@@ -705,7 +702,7 @@ dropZone.addEventListener('drop', e => {
 async function uploadCV(file) {
   if (!file) return;
   cvStatus.style.display = 'block';
-  cvStatus.style.background = 'rgba(0,0,0,0.05)';
+  cvStatus.style.background = '';
   cvStatus.style.color = 'var(--muted)';
   cvStatus.textContent = '⏳ Reading CV…';
   cvText = null;
@@ -718,18 +715,15 @@ async function uploadCV(file) {
     const res = await fetch('/upload-cv', { method: 'POST', body: fd });
     const data = await res.json();
     if (data.error) {
-      cvStatus.style.background = 'rgba(255,59,48,0.08)';
       cvStatus.style.color = 'var(--danger)';
       cvStatus.textContent = '✗ ' + data.error;
     } else {
       cvText = data.cv_text;
-      cvStatus.style.background = '#DDE5B6';
-      cvStatus.style.color = '#4a6641';
+      cvStatus.style.color = '#6a9550';
       cvStatus.textContent = `✓ ${data.filename} · ${data.chars.toLocaleString()} characters`;
       checkReady();
     }
   } catch (e) {
-    cvStatus.style.background = 'rgba(255,59,48,0.08)';
     cvStatus.style.color = 'var(--danger)';
     cvStatus.textContent = '✗ Upload failed: ' + e.message;
   }
@@ -809,9 +803,9 @@ async function startAnalysis() {
         } else if (evt.type === 'batch_progress') {
           let detail = '';
           if (evt.step === 'fetch_done')
-            detail = `<span style="color:var(--success)">✓ ${evt.valid}/${evt.total} valid profiles</span>`;
+            detail = `<span style="color:#6a9550">✓ ${evt.valid}/${evt.total} valid profiles</span>`;
           else if (evt.step === 'shortlisted')
-            detail = `<span style="color:var(--success)">✓ Shortlist: ${(evt.names||[]).slice(0,5).map(n=>escHtml(n)).join(' · ')}${(evt.names||[]).length>5?' …':''}</span>`;
+            detail = `<span style="color:#6a9550">✓ Shortlist: ${(evt.names||[]).slice(0,5).map(n=>escHtml(n)).join(' · ')}${(evt.names||[]).length>5?' …':''}</span>`;
           else if (evt.step === 'detail')
             detail = `<span style="color:var(--muted)">${evt.current}/${evt.total}</span>`;
           progressLog.innerHTML = `<span class="spinner"></span> ${escHtml(evt.message)}` +
@@ -841,7 +835,7 @@ async function startAnalysis() {
           currentMode = evt.mode || currentMode;
           progressBar.style.width = '100%';
           progressLog.innerHTML = `✓ Analysis complete · ${allResults.length} faculty scored`;
-          progressLog.style.color = 'var(--success)';
+          progressLog.style.color = '#6a9550';
           resultsArea.style.display = 'block';
           const _batchLabel = evt.page_class === 'faculty_collection_page'
             ? 'Faculty Collection'
