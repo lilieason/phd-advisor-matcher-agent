@@ -1,6 +1,22 @@
 # PhD Advisor Matcher
 
-Paste a faculty directory URL → get a ranked list of the best-fit PhD advisors for your CV.
+Upload your CV and a URL → get a ranked list of the best-fit PhD advisors with match scores, research interest alignment, and outreach advice.
+
+## Two modes
+
+**Mode 1 — Faculty directory** (batch ranking)
+Paste a department directory URL. The tool extracts all faculty, fetches each profile + Google Scholar data, and returns a ranked Top 10 table.
+```
+https://ise.ufl.edu/people/faculty/
+https://www.isye.gatech.edu/users/faculty
+```
+
+**Mode 2 — Individual profile** (per-professor analysis)
+Paste one or more direct faculty profile URLs (one per line). Each is analyzed against your CV individually — useful when you already have specific professors in mind.
+```
+https://faculty.gatech.edu/alan-erera
+https://scholar.google.com/citations?user=XXXX
+```
 
 ## Quickstart
 
@@ -22,20 +38,13 @@ pip install -r requirements.txt
 python web_app.py
 
 # 5. Open http://localhost:8001
-#    Select your LLM provider, enter your API key, upload CV, paste URL → done
+#    Select provider → enter API key → upload CV → paste URL → Start Analysis
 ```
 
-## What it does
+## How it works
 
-1. **Extracts** all faculty from a department directory page
-2. **Fetches** each professor's profile + Google Scholar publications
-3. **Scores** fit with your CV across research direction, methods, and application domain
-4. **Returns** a ranked Top 10 table with match explanations and email entry points
-
-## Supported URL types
-
-- **Faculty directory** (recommended): `https://ise.ufl.edu/people/faculty/`  → full batch ranking
-- **Individual profile**: paste one or more direct profile URLs → per-professor analysis
+1. **Extraction agent** — fetches the URL, parses faculty names and profile links, visits each profile page to collect research interests, publications, and bio
+2. **Matching agent** — scores each faculty member against your CV across research direction, methods, and application domain; generates a ranked list with match reasons and outreach entry points
 
 ## Requirements
 
