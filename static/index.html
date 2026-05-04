@@ -375,6 +375,7 @@
   /* ── Batch table (directory mode) ── */
   .batch-table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     background: var(--surface);
     border-radius: var(--radius);
@@ -457,22 +458,22 @@
   .batch-detail-meta { font-size: 12px; color: var(--muted); margin-left: 4px; }
 
   /* ── Flat batch table column layout ── */
-  .batch-table .bt-rank     { width: 38px;  text-align: center; }
-  .batch-table .bt-faculty  { width: 145px; }
-  .batch-table .bt-interests{ width: 130px; }
-  .batch-table .bt-score    { width: 72px;  text-align: center; }
-  .batch-table .bt-reason   { width: 190px; }
-  /* .bt-outreach fills remaining width */
+  .batch-table .bt-rank     { width: 36px;  text-align: center; }
+  .batch-table .bt-faculty  { width: 140px; }
+  .batch-table .bt-interests{ width: 18%; }
+  .batch-table .bt-score    { width: 68px;  text-align: center; }
+  .batch-table .bt-reason   { width: 22%; }
+  .batch-table .bt-outreach { width: auto; }
 
   .bt-row { border-bottom: 1px solid var(--border); vertical-align: top; }
   .bt-row:last-child { border-bottom: none; }
   .bt-row:hover { background: #fafafa; }
 
-  .bt-col { padding: 13px 12px; font-size: 13px; }
+  .bt-col { padding: 13px 10px; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word; }
   .bt-col.bt-rank     { font-weight: 700; color: var(--muted); font-size: 12px; vertical-align: top; }
   .bt-col.bt-score    { vertical-align: top; text-align: center; }
   .bt-col.bt-reason   { font-size: 12.5px; color: var(--text); line-height: 1.6; }
-  .bt-col.bt-outreach { min-width: 210px; }
+  .bt-col.bt-outreach { }
 
   .bt-name { font-weight: 600; font-size: 13.5px; margin-bottom: 5px; }
   .bt-pill { font-size: 10.5px !important; }
@@ -995,7 +996,7 @@ function renderResults(results) {
       </div>
       ${rSigBadges ? `<div class="sig-badges" style="margin-top:4px">${rSigBadges}</div>` : ''}
       <div class="interest-pills">${
-        (Array.isArray(r.refined_interests) ? r.refined_interests.join('; ') : (r.refined_interests || '')).split(';').map(s => s.trim()).filter(Boolean)
+        (Array.isArray(r.refined_interests) ? r.refined_interests.join('; ') : (r.refined_interests || '')).split(/[;,]/).map(s => s.trim()).filter(Boolean)
           .map(s => `<span class="interest-pill">${escHtml(s)}</span>`).join('')
       }</div>
       ${(r.groups && r.groups.length) ? `<div class="group-tags">${
@@ -1072,7 +1073,7 @@ function renderBatchTable(results) {
     const sc    = scoreBadge(score);
     const ce    = r.cold_email || {};
 
-    const pills = (Array.isArray(r.refined_interests) ? r.refined_interests.join('; ') : (r.refined_interests || '')).split(';').map(s => s.trim()).filter(Boolean).slice(0, 4)
+    const pills = (Array.isArray(r.refined_interests) ? r.refined_interests.join('; ') : (r.refined_interests || '')).split(/[;,]/).map(s => s.trim()).filter(Boolean).slice(0, 4)
       .map(s => `<span class="interest-pill bt-pill">${escHtml(s)}</span>`).join('');
 
     const pu = r.profile_url ? `<a class="link-chip" href="${escHtml(r.profile_url)}" target="_blank">Profile ↗</a>` : '';
