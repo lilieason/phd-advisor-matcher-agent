@@ -375,7 +375,7 @@
   /* ── Batch table (directory mode) ── */
   .batch-table {
     width: 100%;
-    table-layout: fixed;
+    table-layout: auto;
     border-collapse: collapse;
     background: var(--surface);
     border-radius: var(--radius);
@@ -458,12 +458,12 @@
   .batch-detail-meta { font-size: 12px; color: var(--muted); margin-left: 4px; }
 
   /* ── Flat batch table column layout ── */
-  .batch-table .bt-rank     { width: 36px;  text-align: center; }
-  .batch-table .bt-faculty  { width: 140px; }
-  .batch-table .bt-interests{ width: 18%; }
-  .batch-table .bt-score    { width: 68px;  text-align: center; }
-  .batch-table .bt-reason   { width: 22%; }
-  .batch-table .bt-outreach { width: auto; }
+  .batch-table .bt-rank     { width: 36px; min-width: 36px; text-align: center; }
+  .batch-table .bt-faculty  { width: 14%;  min-width: 110px; max-width: 160px; }
+  .batch-table .bt-interests{ width: 17%;  min-width: 120px; max-width: 190px; }
+  .batch-table .bt-score    { width: 68px; min-width: 68px; text-align: center; }
+  .batch-table .bt-reason   { width: 22%;  min-width: 140px; }
+  .batch-table .bt-outreach { width: auto; min-width: 140px; }
 
   .bt-row { border-bottom: 1px solid var(--border); vertical-align: top; }
   .bt-row:last-child { border-bottom: none; }
@@ -1121,7 +1121,7 @@ function renderBatchTable(results) {
       <td class="bt-col bt-rank">${rank}</td>
       <td class="bt-col bt-faculty">
         <div class="bt-name">${escHtml(r.name)}</div>
-        <div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap">${pu}${su}${cu}${wu}${oau}${orcu}</div>
+        <div style="margin-top:4px;display:flex;flex-direction:column;align-items:flex-start;gap:4px">${pu}${su}${cu}${wu}${oau}${orcu}</div>
         ${sigBadges ? `<div class="sig-badges">${sigBadges}</div>` : ''}
         ${(r.groups && r.groups.length) ? `<div class="group-tags">${
           r.groups.map(g => `<span class="group-tag" title="Research group">${escHtml(g)}</span>`).join('')
