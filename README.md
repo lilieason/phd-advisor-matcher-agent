@@ -27,7 +27,7 @@ https://ise.usc.edu/directory/faculty/profile/?lname=Dessouky&fname=Maged
 git clone https://github.com/lilieason/phd-advisor-matcher-agent.git
 cd phd-advisor-matcher-agent
 
-# Create an isolated Python environment (if python fails, try python)
+# Create an isolated Python environment (if python3 fails, try python)
 python3 -m venv venv
 source venv/bin/activate
 
@@ -36,7 +36,7 @@ pip install -r requirements.txt
 
 # Start the local server
 python3 web_app.py
-、、、
+```
 
 > **Step 2 — Browser**: open **http://localhost:8001**
 > 1. Select your LLM provider and enter your API key
