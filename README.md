@@ -45,11 +45,7 @@ pip install -r requirements.txt
 
 **4. Start the app**
 ```bash
-# Mac / Linux
 python3 web_app.py
-
-# Windows
-python web_app.py
 ```
 **5. Open in your browser**
 
