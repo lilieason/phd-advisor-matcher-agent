@@ -44,6 +44,20 @@ python web_app.py
 1. **Extraction agent** — fetches the URL, parses faculty names and profile links, visits each profile page to collect research interests, publications, and bio
 2. **Matching agent** — scores each faculty member against your CV across research direction, methods, and application domain; generates a ranked list with match reasons and outreach entry points
 
+### Agent design
+
+**Extraction agent — Planner → Executor → Validator loop**
+- **Planner**: inspects page signals (HTML structure, link patterns, section layout) and reads Kahuna memory for this domain to select an ordered list of extraction strategies
+- **Executor**: runs each strategy in priority order, stopping when the Validator approves the result
+- **Validator**: scores extraction quality (faculty count, name validity, hallucination check) and decides pass/retry
+- **Kahuna memory**: after each run, records the outcome (strategy used, faculty count, quality score) locally per domain — on the next visit to the same site, the Planner promotes the historically best strategy to the front
+- **Few-shot learning**: successful extractions are saved as structured examples; on future runs with structurally similar pages, the example is injected into the LLM prompt to guide extraction
+
+**Matching agent**
+- Pulls profile page, OpenAlex publications, and Google Scholar data in parallel for each faculty member
+- Scores fit across research direction, methodology, and application domain
+- Generates personalized outreach entry points based on the professor's recent work
+
 ## File structure
 
 ```
