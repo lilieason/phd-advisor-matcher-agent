@@ -53,27 +53,21 @@ python web_app.py
 - **Kahuna memory**: after each run, records the outcome (strategy used, faculty count, quality score) locally per domain — on the next visit to the same site, the Planner promotes the historically best strategy to the front
 - **Few-shot learning**: successful extractions are saved as structured examples; on future runs with structurally similar pages, the example is injected into the LLM prompt to guide extraction
 
-**Matching agent**
-- Pulls profile page, OpenAlex publications, and Google Scholar data in parallel for each faculty member
-- Scores fit across research direction, methodology, and application domain
-- Generates personalized outreach entry points based on the professor's recent work
+**Matching agent — multi-stage pipeline with live frontend streaming**
 
-## File structure
+The matching agent runs a staged pipeline and streams every step to the frontend in real time via SSE (Server-Sent Events), so the user sees live progress rather than waiting for a final result.
 
-```
-phd-advisor-matcher-agent/
-├── web_app.py                        # FastAPI server, handles CV upload and SSE streaming
-├── requirements.txt
-├── static/
-│   └── index.html                    # Single-page frontend (upload, progress, results table)
-├── mcp_servers/
-│   ├── extraction_agent.py           # Extraction agent: fetches & parses faculty pages
-│   ├── matching_agent.py             # Matching agent: scores fit, generates outreach advice
-│   ├── advisor_server.py             # Shared tools: CV reader, HTTP fetcher, OpenAlex/Scholar lookup
-│   └── llm_client.py                 # Unified LLM client (Anthropic / OpenAI / Gemini)
-└── get_api_key/
-    └── README.md                     # Guide to getting an API key
-```
+| Stage | What happens | Frontend event |
+|-------|-------------|----------------|
+| A — CV normalisation | If the CV is non-English, an LLM extracts English keywords and a summary for consistent scoring | `cv_normalize` |
+| B — Early exclusion | Keyword overlap + heuristic filters remove obviously off-topic faculty without any LLM calls | — |
+| C — Profile enrichment | Fetches each remaining professor's profile page; extracts research interests, bio, and links | `profiles_fetched` |
+| C.5 — OpenAlex | Pulls recent publications and topic tags from OpenAlex for each professor | — |
+| D — Scholar acquisition | Finds and fetches Google Scholar page (via profile link or name search); extracts publication titles and citation counts | — |
+| E — Prescreening (LLM) | Batch LLM call scores all enriched profiles for keyword fit; shortlists the top candidates for deep scoring | `shortlisted` |
+| E — Full scoring (LLM) | For each shortlisted professor: separate LLM calls score profile fit and Scholar publication fit; scores are weighted and combined into an overall match score | `detail`, `batch_progress` |
+| F — Outreach advice (LLM) | For the top results, generates a personalised entry point (specific paper hook) and a convincing fit statement | — |
+| Deliver | Final ranked list sent to frontend; results rendered as an interactive table with score badges, interest pills, and outreach advice | `results` |
 
 ## Requirements
 
