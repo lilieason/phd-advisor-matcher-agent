@@ -252,7 +252,7 @@
   }
   .link-chip:hover { background: #bfd5e8; }
   /* Dim chip: low-confidence website or fallback Scholar link */
-  .link-chip-dim { opacity: 0.6; font-style: italic; }
+  .link-chip-dim { }
 
   /* Research-group membership tags (from grouped-faculty extraction) */
   .group-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
@@ -936,7 +936,7 @@ function renderResults(results) {
       ? `title="Found via ${_scholarSrcLabel} (confidence: ${r.scholar_confidence||'low'})" `
       : '';
     const scholarLink = r.scholar_url
-      ? `<a class="link-chip${_scholarFallback?' link-chip-dim':''}" href="${escHtml(r.scholar_url)}" target="_blank" onclick="event.stopPropagation()" ${_scholarTitle}>Scholar${_scholarFallback?'~':''} ↗</a>` : '';
+      ? `<a class="link-chip${_scholarFallback?' link-chip-dim':''}" href="${escHtml(r.scholar_url)}" target="_blank" onclick="event.stopPropagation()" ${_scholarTitle}>Scholar ↗</a>` : '';
     const cvLink = r.cv_url
       ? `<a class="link-chip" href="${escHtml(r.cv_url)}" target="_blank" onclick="event.stopPropagation()">CV ↗</a>` : '';
     const _webConf  = r.website_confidence || '';
@@ -1091,7 +1091,7 @@ function renderBatchTable(results) {
     const _bsTitle    = _bsFallback && _bsSrcLabel
       ? `title="Found via ${_bsSrcLabel} (${r.scholar_confidence||'low'} confidence)" ` : '';
     const su = r.scholar_url
-      ? `<a class="link-chip${_bsFallback?' link-chip-dim':''}" href="${escHtml(r.scholar_url)}" target="_blank" ${_bsTitle}>Scholar${_bsFallback?'~':''} ↗</a>` : '';
+      ? `<a class="link-chip${_bsFallback?' link-chip-dim':''}" href="${escHtml(r.scholar_url)}" target="_blank" ${_bsTitle}>Scholar ↗</a>` : '';
     const cu = r.cv_url ? `<a class="link-chip" href="${escHtml(r.cv_url)}" target="_blank">CV ↗</a>` : '';
     const _bwConf = r.website_confidence || '';
     const _bwDim  = _bwConf === 'low';
