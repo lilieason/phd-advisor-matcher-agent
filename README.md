@@ -70,7 +70,7 @@ Upload your CV and paste a URL. Two agents run in sequence — the extraction ag
 
 **Matching agent — multi-stage pipeline with live frontend streaming**
 
-The matching agent runs a staged pipeline and streams every step to the frontend in real time via SSE (Server-Sent Events), so the user sees live progress rather than waiting for a final result.
+The matching agent runs a staged pipeline and streams every step to the frontend in real time via SSE.
 
 | Stage | What happens | Frontend event |
 |-------|-------------|----------------|
