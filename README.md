@@ -44,6 +44,23 @@ python web_app.py
 1. **Extraction agent** — fetches the URL, parses faculty names and profile links, visits each profile page to collect research interests, publications, and bio
 2. **Matching agent** — scores each faculty member against your CV across research direction, methods, and application domain; generates a ranked list with match reasons and outreach entry points
 
+## File structure
+
+```
+phd-advisor-matcher-agent/
+├── web_app.py                        # FastAPI server, handles CV upload and SSE streaming
+├── requirements.txt
+├── static/
+│   └── index.html                    # Single-page frontend (upload, progress, results table)
+├── mcp_servers/
+│   ├── extraction_agent.py           # Extraction agent: fetches & parses faculty pages
+│   ├── matching_agent.py             # Matching agent: scores fit, generates outreach advice
+│   ├── advisor_server.py             # Shared tools: CV reader, HTTP fetcher, OpenAlex/Scholar lookup
+│   └── llm_client.py                 # Unified LLM client (Anthropic / OpenAI / Gemini)
+└── get_api_key/
+    └── README.md                     # Guide to getting an API key
+```
+
 ## Requirements
 
 See `requirements.txt`. Key dependencies: `fastapi`, `uvicorn`, `anthropic`, `beautifulsoup4`, `curl-cffi`.
