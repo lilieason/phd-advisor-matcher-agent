@@ -24,8 +24,8 @@ https://scholar.google.com/citations?user=XXXX
 
 ```bash
 # 1. Clone
-git clone https://github.com/lilieason/phd-advisor-matcher.git
-cd phd-advisor-matcher
+git clone https://github.com/lilieason/phd-advisor-agent.git
+cd phd-advisor-agent
 
 # 2. Create and activate a virtual environment
 python3 -m venv venv
