@@ -28,14 +28,14 @@ git clone https://github.com/lilieason/phd-advisor-matcher-agent.git
 cd phd-advisor-matcher-agent
 
 # Create an isolated Python environment
-python3 -m venv venv
+python -m venv venv
 source venv/bin/activate
 
 # Install required packages
 pip install -r requirements.txt
 
 # Start the local server
-python3 web_app.py
+python web_app.py
 ```
 
 > **Step 2 — Browser**: open **http://localhost:8001**
