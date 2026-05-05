@@ -43,9 +43,6 @@ python web_app.py
 
 Upload your CV and paste a URL. Two agents run in sequence — the extraction agent gathers faculty data from the web, then the matching agent scores each professor against your CV and streams results to the frontend in real time.
 
-1. **Extraction agent** — fetches the URL, parses faculty names and profile links, visits each profile page to collect research interests, publications, and bio
-2. **Matching agent** — scores each faculty member against your CV across research direction, methods, and application domain; generates a ranked list with match reasons and outreach entry points
-
 ### Agent design
 
 **Extraction agent — Planner → Executor → Validator loop**
