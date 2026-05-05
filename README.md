@@ -8,7 +8,6 @@ Upload your CV and a URL → get a ranked list of the best-fit PhD advisors with
 Paste a department directory URL. The tool extracts all faculty, then for each professor fetches their profile page, OpenAlex publication data, and Google Scholar records to build a comprehensive match score against your CV.
 ```
 https://ise.ufl.edu/people/faculty/
-https://www.isye.gatech.edu/users/faculty
 ```
 
 **Mode 2 — Individual profile** (per-professor analysis)
