@@ -20,25 +20,29 @@ https://ise.usc.edu/directory/faculty/profile/?lname=Dessouky&fname=Maged
 
 **Requirements:** Python 3.9+, an API key from [Anthropic](https://platform.claude.com/settings/keys), [OpenAI](https://platform.openai.com), or [Google Gemini](https://aistudio.google.com) — see **[How to get an API key](get_api_key/README.md)**
 
-> Run in a terminal — **Terminal** on Mac, **Command Prompt** or **PowerShell** on Windows.
+> **Step 1 — Terminal** (Terminal on Mac, Command Prompt or PowerShell on Windows)
 
 ```bash
-# 1. Download the project
+# Download the project
 git clone https://github.com/lilieason/phd-advisor-matcher-agent.git
 cd phd-advisor-matcher-agent
 
-# 2. Create an isolated Python environment (keeps dependencies clean)
+# Create an isolated Python environment
 python3 -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+source venv/bin/activate
 
-# 3. Install required packages
+# Install required packages
 pip install -r requirements.txt
 
-# 4. Start the local server
-python3 web_app.py              # Windows: python web_app.py
+# Start the local server
+python3 web_app.py
 ```
 
-Then open **http://localhost:8001** in your browser.
+> **Step 2 — Browser**: open **http://localhost:8001**
+> 1. Select your LLM provider and enter your API key
+> 2. Upload your CV (PDF or plain text)
+> 3. Paste a faculty directory or profile URL
+> 4. Click **Start Analysis** — results stream in as they are computed
 
 ## How it works
 
