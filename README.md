@@ -27,7 +27,7 @@ https://ise.usc.edu/directory/faculty/profile/?lname=Dessouky&fname=Maged
 git clone https://github.com/lilieason/phd-advisor-matcher-agent.git
 cd phd-advisor-matcher-agent
 
-# Create an isolated Python environment
+# Create an isolated Python environment (use python3 if python doesn't work)
 python -m venv venv
 source venv/bin/activate
 
