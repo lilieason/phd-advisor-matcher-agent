@@ -20,36 +20,25 @@ https://ise.usc.edu/directory/faculty/profile/?lname=Dessouky&fname=Maged
 
 **Requirements:** Python 3.9+, an API key from [Anthropic](https://platform.claude.com/settings/keys), [OpenAI](https://platform.openai.com), or [Google Gemini](https://aistudio.google.com) — see **[How to get an API key](get_api_key/README.md)**
 
-> Run all commands below in a terminal — **Terminal** on Mac, **Command Prompt** or **PowerShell** on Windows.
+> Run in a terminal — **Terminal** on Mac, **Command Prompt** or **PowerShell** on Windows.
 
-**1. Clone the repo**
 ```bash
+# 1. Download the project
 git clone https://github.com/lilieason/phd-advisor-matcher-agent.git
 cd phd-advisor-matcher-agent
-```
 
-**2. Create a virtual environment**
-```bash
-# Mac / Linux
+# 2. Create an isolated Python environment (keeps dependencies clean)
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate        # Windows: venv\Scripts\activate
 
-# Windows
-python -m venv venv
-venv\Scripts\activate
-```
-**3. Install dependencies**
-```bash
+# 3. Install required packages
 pip install -r requirements.txt
+
+# 4. Start the local server
+python3 web_app.py              # Windows: python web_app.py
 ```
 
-**4. Start the app**
-```bash
-python3 web_app.py
-```
-**5. Open in your browser**
-
-Go to **http://localhost:8001**, then: select provider → enter API key → upload CV → paste URL → Start Analysis
+Then open **http://localhost:8001** in your browser.
 
 ## How it works
 
