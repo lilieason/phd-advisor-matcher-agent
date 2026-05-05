@@ -23,18 +23,18 @@ https://ise.usc.edu/directory/faculty/profile/?lname=Dessouky&fname=Maged
 > **Step 1 — Terminal** (Terminal on Mac, Command Prompt or PowerShell on Windows)
 
 ```bash
-# Download the project
 git clone https://github.com/lilieason/phd-advisor-matcher-agent.git
 cd phd-advisor-matcher-agent
-
-# Create an isolated Python environment
+```
+```bash
 python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install required packages
+source venv/bin/activate
+```
+> Windows: `venv\Scripts\activate`
+```bash
 pip install -r requirements.txt
-
-# Start the local server
+```
+```bash
 python3 web_app.py
 ```
 
