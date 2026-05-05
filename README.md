@@ -38,8 +38,6 @@ source venv/bin/activate
 python -m venv venv
 venv\Scripts\activate
 ```
-> You should see `(venv)` appear at the start of your terminal prompt — that means it worked.
-
 **3. Install dependencies**
 ```bash
 pip install -r requirements.txt
@@ -53,8 +51,6 @@ python3 web_app.py
 # Windows
 python web_app.py
 ```
-> Leave this terminal window open while you use the app — closing it stops the server.
-
 **5. Open in your browser**
 
 Go to **http://localhost:8001**, then: select provider → enter API key → upload CV → paste URL → Start Analysis
