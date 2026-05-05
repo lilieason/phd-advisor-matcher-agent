@@ -43,21 +43,31 @@ python web_app.py
 
 Upload your CV and paste a URL. Two agents run in sequence — the extraction agent gathers faculty data from the web, then the matching agent scores each professor against your CV and streams results to the frontend in real time.
 
-**Extraction agent** — fetches the URL, parses faculty names and profile links, visits each profile page to collect research interests, publications, and bio
+1. **Extraction agent** — fetches the URL, parses faculty names and profile links, visits each profile page to collect research interests, publications, and bio
+2. **Matching agent** — scores each faculty member against your CV across research direction, methods, and application domain; generates a ranked list with match reasons and outreach entry points
 
-- Runs a **Planner → Executor → Validator** loop: the Planner reads page signals and Kahuna memory to choose an extraction strategy; the Executor runs it; the Validator checks result quality and triggers a retry with a different strategy if needed
-- **Kahuna memory**: records the outcome of every run per domain — on future visits to the same site the Planner promotes the historically best strategy to the front
-- **Few-shot learning**: clean extractions are saved locally; on structurally similar pages the saved example is injected into the LLM prompt to improve accuracy
+### Agent design
 
-**Matching agent** — scores each faculty member against your CV across research direction, methods, and application domain; generates a ranked list with match reasons and outreach entry points
+**Extraction agent — Planner → Executor → Validator loop**
+- **Planner**: inspects page signals (HTML structure, link patterns, section layout) and reads Kahuna memory for this domain to select an ordered list of extraction strategies
+- **Executor**: runs each strategy in priority order, stopping when the Validator approves the result
+- **Validator**: scores extraction quality (faculty count, name validity, hallucination check) and decides pass/retry
+- **Kahuna memory**: after each run, records the outcome (strategy used, faculty count, quality score) locally per domain — on the next visit to the same site, the Planner promotes the historically best strategy to the front
+- **Few-shot learning**: successful extractions are saved as structured examples; on future runs with structurally similar pages, the example is injected into the LLM prompt to guide extraction
 
-- **CV normalisation**: non-English CVs are translated to English keywords by an LLM before scoring
-- **Early exclusion**: keyword overlap and heuristic filters remove off-topic faculty with no LLM calls
-- **Data enrichment**: fetches each professor's profile page, OpenAlex publications, and Google Scholar records in parallel
-- **Prescreening**: a single batch LLM call scores all enriched profiles and shortlists the top candidates
-- **Deep scoring**: separate LLM calls score profile fit and Scholar publication fit; scores are weighted and combined into an overall match score
-- **Outreach advice**: for each top result, generates a personalised paper hook and a specific fit statement
-- **Live streaming**: every stage emits SSE events to the frontend so the user sees real-time progress throughout
+**Matching agent — multi-stage pipeline with live frontend streaming**
+
+The matching agent runs a staged pipeline and streams every step to the frontend in real time via SSE (Server-Sent Events), so the user sees live progress rather than waiting for a final result.
+
+| Stage | What happens | Frontend event |
+|-------|-------------|----------------|
+| A — CV normalisation | If the CV is non-English, an LLM extracts English keywords and a summary for consistent scoring | `cv_normalize` |
+| B — Early exclusion | Keyword overlap + heuristic filters remove obviously off-topic faculty without any LLM calls | — |
+| C — Data enrichment | Fetches each professor's profile page (research interests, bio, links), OpenAlex publications, and Google Scholar records in parallel | `profiles_fetched` |
+| D — Prescreening (LLM) | Batch LLM call scores all enriched profiles for keyword fit; shortlists the top candidates for deep scoring | `shortlisted` |
+| E — Full scoring (LLM) | For each shortlisted professor: separate LLM calls score profile fit and Scholar publication fit; scores are weighted and combined into an overall match score | `detail`, `batch_progress` |
+| F — Outreach advice (LLM) | For the top results, generates a personalised entry point (specific paper hook) and a convincing fit statement | — |
+| Deliver | Final ranked list sent to frontend; results rendered as an interactive table with score badges, interest pills, and outreach advice | `results` |
 
 ## Requirements
 
